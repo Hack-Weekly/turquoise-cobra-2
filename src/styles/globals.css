@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Font-Calistoga */
+
+@import url('https://fonts.googleapis.com/css2?family=Calistoga&display=swap');
+
+@font-face {
+  font-family: 'Calistoga';
+  src: url("../../public/fonts/Calistoga.ttf");
+}
+
+/* Font - Merriweather */
+
+@import url('https://fonts.googleapis.com/css2?family=Calistoga&family=Merriweather:wght@400;700&display=swap');
+
+@font-face {
+  font-family: 'Merriweather-Regular';
+  src: url("../../public/fonts/Merriweather-Regular.ttf");
+}
+
+@font-face {
+  font-family: 'Merriweather-Bold';
+  src: url("../../public/fonts/Merriweather-Bold.ttf");
+}
