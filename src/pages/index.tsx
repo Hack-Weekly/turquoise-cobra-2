@@ -21,17 +21,25 @@ export default function Home() {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
       <main className='bg-turquoise-200 mx-auto h-screen flex items-center justify-center'>
-        <div className='flex flex-col items-center justify-center'>
-          <h1 className="text-6xl font-calistoga mb-8">TurqChat</h1>
-          {!isLoggedIn ? <LoginBox /> : (
-            <div>
-              <h2 className='font-merriweatherRegular'>Chat Window state test (WIP)</h2>
-            </div>
-          )}
-        </div>
-      </main>
+      <aside>
+        <ol>
+          <li>Jane Doe</li>
+          <li>Juan Perez</li>
+          <li>Mohammed Ahmed</li>
+        </ol>
+      </aside>
+      <section>
+        <p>Hey</p>
+        <p>Hello</p>
+        <p>Hi</p>
+      </section>
+      <form>
+        <input type="text" id="new-message" name="message" placeholder="Type your message here" />
+        <button type="submit">Enter</button>
+      </form>
+    </main>
+      
     </>
   );
 }
