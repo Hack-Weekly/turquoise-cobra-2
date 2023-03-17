@@ -3,7 +3,15 @@ import Image from 'next/image';
 import LoginBox from './components/LoginBox';
 import { useState } from 'react';
 
-export default function Home(props: { roomId: number, author: {id: number, name: string}}) {
+export type IHome = {
+  roomId: number
+  author: {
+    id: number
+    name: string
+  }
+}
+
+export function Home(props: IHome) {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [message, setMessage] = useState('')
@@ -12,21 +20,23 @@ export default function Home(props: { roomId: number, author: {id: number, name:
 	setMessage(e.target.value);
   }
 
-  const handleClick = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const d = new Date();
     if(message){
       const messageData = {
-		"content": message,
-		"roomID": props.roomId,
-		"author": {
-			"id": props.author.id,
-            "name": props.author.name
-		},
-		"timestamp": new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes()
-	  };
+		    "content": message,
+		    "roomID": props.roomId,
+		    "author": {
+			    "id": props.author.id,
+          "name": props.author.name
+		    },
+		    "timestamp": d.getTime()
+	    };
 	  //send to backend here, for now just console log
       console.log(messageData);
-	}
+      setMessage('');
+	  }
   }
 
   return (
@@ -56,9 +66,9 @@ export default function Home(props: { roomId: number, author: {id: number, name:
         <p>Hello</p>
         <p>Hi</p>
       </section>
-      <form>
+      <form onSubmit={handleSubmit}>
         <input type="text" id="new-message" name="message" placeholder="Type your message here" value={message} onChange={handleChange} />
-        <button type="submit" onClick={handleClick}>Enter</button>
+        <button type="submit">Enter</button>
       </form>
     </main>
       
