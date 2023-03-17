@@ -2,9 +2,24 @@ import Head from "next/head";
 import Image from "next/image";
 import LoginBox from "./components/LoginBox";
 import { useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../lib/firebase.config";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, loading, error] = useAuthState(auth);
+
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex justify-center items-center">
+        <h1>loading...</h1>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginBox />;
+  }
 
   return (
     <>
