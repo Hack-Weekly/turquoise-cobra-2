@@ -11,7 +11,7 @@ export type IHome = {
   }
 }
 
-export function Home(props: IHome) {
+export default function Home(props: IHome) {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [message, setMessage] = useState('')
