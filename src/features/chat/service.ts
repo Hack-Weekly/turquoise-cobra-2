@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { auth, db } from "../../../../lib/firebase.config";
 import {
   addDoc,
   collection,
@@ -12,6 +11,7 @@ import {
   serverTimestamp,
   SnapshotMetadata,
 } from "firebase/firestore";
+import { auth, db } from "../../../lib/firebase.config";
 
 export type DataChatMessage = {
   channelId: string;

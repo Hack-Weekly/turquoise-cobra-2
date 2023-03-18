@@ -2,14 +2,14 @@ import { useState } from "react";
 import cx from "classnames";
 import { MdSend } from "react-icons/md";
 import { signOut } from "firebase/auth";
-import { auth } from "../../../../../lib/firebase.config";
 import {
   DataChatMessage,
   useDeleteMessage,
   useMessages,
   useSendMessage,
 } from "../service";
-import Button from "@/pages/components/Button";
+import Button from "@/components/Button";
+import { auth } from "../../../../lib/firebase.config";
 
 export type IChatRoom = {
   roomId: number;

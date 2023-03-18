@@ -1,6 +1,6 @@
 import Head from "next/head";
-import LoginBox from "./components/LoginBox";
-import { ChatRoom } from "./features/chat/ChatRoom";
+import LoginBox from "@/components/LoginBox";
+import { ChatRoom } from "@/features/chat/ChatRoom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../lib/firebase.config";
 
