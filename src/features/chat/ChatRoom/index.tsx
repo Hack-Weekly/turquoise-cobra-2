@@ -40,8 +40,8 @@ export const ChatRoom = (props: IChatRoom) => {
         <div className="p-4">
           <h1 className="font-bold text-2xl text-center">Room Name</h1>
         </div>
-        <div className="flex flex-auto flex-col bg-white rounded-3xl rounded-b-none overflow-hidden">
-          <div className="flex flex-auto flex-col p-8">
+        <div className="flex flex-auto flex-col bg-white rounded-3xl rounded-b-none overflow-hidden p-8 pt-0">
+          <div className="flex flex-1 flex-col overflow-y-scroll">
             {messages.map((message) => (
               <ChatMessage key={message.id} message={message} />
             ))}
@@ -72,7 +72,7 @@ const SendChatMessage = () => {
   };
 
   return (
-    <form className="flex p-4" onSubmit={handleSubmit}>
+    <form className="flex" onSubmit={handleSubmit}>
       <input
         className="flex-auto px-4 py-2 border border-2 rounded-xl"
         type="text"
@@ -98,7 +98,7 @@ const ChatMessage = (props: IChatMessage) => {
   const { message } = props;
 
   return (
-    <div className="pb-4">
+    <div className="first:pt-8 pb-4">
       <p className="flex gap-4 items-center">
         {message.author.displayName ? (
           <span className="font-bold">{message.author.displayName}</span>
