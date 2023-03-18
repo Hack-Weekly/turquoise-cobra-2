@@ -2,6 +2,8 @@ import Head from "next/head";
 import Image from "next/image";
 import LoginBox from "./components/LoginBox";
 import { useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../lib/firebase.config";
 
 export type IHome = {
   roomId: number;
@@ -14,6 +16,7 @@ export type IHome = {
 export default function Home(props: IHome) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [message, setMessage] = useState("");
+  const [user, loading, error] = useAuthState(auth);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
@@ -36,6 +39,18 @@ export default function Home(props: IHome) {
       setMessage("");
     }
   };
+  
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex justify-center items-center">
+        <h1>loading...</h1>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginBox />;
+  }
 
   return (
     <>
