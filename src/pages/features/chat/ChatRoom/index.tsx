@@ -10,6 +10,13 @@ export type IChatRoom = {
 };
 
 export const ChatRoom = (props: IChatRoom) => {
+  const [messages, setMessages] = useState([
+    { sender: "User 1", content: "Test" },
+    { sender: "User 2", content: "Array of messages" },
+    { sender: "User 3", content: "Add" },
+    { sender: "User 1", content: "Tailwind" },
+  ]);
+
   const [message, setMessage] = useState("");
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
@@ -21,13 +28,12 @@ export const ChatRoom = (props: IChatRoom) => {
     if (message) {
       const messageData = {
         content: message,
+        sender: "Me",
         roomID: props.roomId,
-        author: {
-          id: props.author.id,
-          name: props.author.name,
-        },
         timestamp: d.getTime(),
       };
+      setMessages((m) => [...m, messageData]);
+
       //send to backend here, for now just console log
       setMessage("");
     }
@@ -49,10 +55,9 @@ export const ChatRoom = (props: IChatRoom) => {
         </div>
         <div className="flex flex-auto flex-col bg-white rounded-3xl rounded-b-none overflow-hidden">
           <div className="flex flex-auto flex-col p-8">
-            <ChatMessage />
-            <ChatMessage />
-            <ChatMessage />
-            <ChatMessage />
+            {messages.map((message) => (
+              <ChatMessage key={message.content} message={message} />
+            ))}
           </div>
           <form className="flex p-4" onSubmit={handleSubmit}>
             <input
@@ -77,14 +82,20 @@ export const ChatRoom = (props: IChatRoom) => {
   );
 };
 
-const ChatMessage = () => {
+type IChatMessage = {
+  message: {
+    sender: string;
+    content: string;
+  };
+};
+const ChatMessage = (props: IChatMessage) => {
   return (
     <div className="pb-4">
       <p>
-        <span className="font-bold">Sender Name</span>
+        <span className="font-bold">{props.message.sender}</span>
         <span className="pl-4 text-slate-400 text-sm">12:15 PM</span>
       </p>
-      <p className="">Hi</p>
+      <p className="">{props.message.content}</p>
     </div>
   );
 };
