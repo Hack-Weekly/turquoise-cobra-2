@@ -63,31 +63,44 @@ export default function Home(props: IHome) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="bg-turquoise-200 mx-auto h-screen flex items-center justify-center">
-        <aside>
+      <main className="bg-turquoise-200 mx-auto h-screen flex">
+        <aside className="flex w-[256px]">
           <ol>
-            <li>Jane Doe</li>
-            <li>Juan Perez</li>
-            <li>Mohammed Ahmed</li>
+            <RoomListItem />
+            <RoomListItem />
+            <RoomListItem />
+            <RoomListItem />
           </ol>
         </aside>
-        <section>
-          <p>Hey</p>
-          <p>Hello</p>
-          <p>Hi</p>
+        <section className="flex flex-auto flex-col iNametems-stretch bg-white">
+          <div className="flex flex-auto flex-col">
+            <ChatMessage />
+            <ChatMessage />
+            <ChatMessage />
+            <ChatMessage />
+          </div>
+          <form onSubmit={handleSubmit}>
+            <input
+              className="w-full"
+              type="text"
+              id="new-message"
+              name="message"
+              placeholder="Type your message here"
+              value={message}
+              onChange={handleChange}
+            />
+            <button type="submit">Enter</button>
+          </form>
         </section>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            id="new-message"
-            name="message"
-            placeholder="Type your message here"
-            value={message}
-            onChange={handleChange}
-          />
-          <button type="submit">Enter</button>
-        </form>
       </main>
     </>
   );
 }
+
+const ChatMessage = () => {
+  return <p className="p-4">Hi</p>;
+};
+
+const RoomListItem = () => {
+  return <li className="p-4">Room Name</li>;
+};
