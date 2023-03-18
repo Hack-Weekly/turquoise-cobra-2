@@ -123,7 +123,7 @@ const ChatMessage = (props: IChatMessage) => {
 };
 
 type IRoomListItem = {
-  active: boolean;
+  active?: boolean;
 };
 const RoomListItem = (props: IRoomListItem) => {
   return (
