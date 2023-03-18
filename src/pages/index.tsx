@@ -12,12 +12,11 @@ export type IHome = {
 }
 
 export default function Home(props: IHome) {
-
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [message, setMessage] = useState('')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-	setMessage(e.target.value);
+    setMessage(e.target.value);
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -25,18 +24,17 @@ export default function Home(props: IHome) {
     const d = new Date();
     if(message){
       const messageData = {
-		    "content": message,
-		    "roomID": props.roomId,
-		    "author": {
-			    "id": props.author.id,
+        "content": message,
+        "roomID": props.roomId,
+        "author": {
+          "id": props.author.id,
           "name": props.author.name
-		    },
-		    "timestamp": d.getTime()
-	    };
-	  //send to backend here, for now just console log
-      console.log(messageData);
+        },
+        "timestamp": d.getTime()
+      };
+      //send to backend here, for now just console log
       setMessage('');
-	  }
+    }
   }
 
   return (
