@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { MdSend } from "react-icons/md";
 
 export type IChatRoom = {
   roomId: number;
@@ -49,9 +50,9 @@ export const ChatRoom = (props: IChatRoom) => {
           <ChatMessage />
           <ChatMessage />
         </div>
-        <form onSubmit={handleSubmit}>
+        <form className="flex p-4" onSubmit={handleSubmit}>
           <input
-            className="w-full"
+            className="flex-auto px-4 py-2 border border-2 rounded-xl"
             type="text"
             id="new-message"
             name="message"
@@ -59,7 +60,12 @@ export const ChatRoom = (props: IChatRoom) => {
             value={message}
             onChange={handleChange}
           />
-          <button type="submit">Enter</button>
+          <button
+            className="text-teal-600 hover:text-teal-800 p-4"
+            type="submit"
+          >
+            <MdSend />
+          </button>
         </form>
       </section>
     </main>
