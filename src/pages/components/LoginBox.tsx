@@ -1,8 +1,19 @@
+import { getAuth, signInAnonymously } from "firebase/auth";
+
 export default function LoginBox() {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     // Stop the form from submitting and refreshing the page.
     e.preventDefault();
     console.log("Debug Message");
+  };
+
+  const onSignInAnonymously = (e: React.BaseSyntheticEvent) => {
+    e.preventDefault();
+    const aux = async () => {
+      const auth = getAuth();
+      signInAnonymously(auth);
+    };
+    aux();
   };
 
   return (
@@ -47,7 +58,10 @@ export default function LoginBox() {
             </button>
           </div>
           <div className="w-full flex justify-center">
-            <button className="shadow-xl bg-blue-300 h-12 px-2 rounded-lg">
+            <button
+              onClick={onSignInAnonymously}
+              className="shadow-xl bg-blue-300 h-12 px-2 rounded-lg"
+            >
               Anonymous
             </button>
           </div>

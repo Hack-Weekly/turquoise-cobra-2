@@ -39,7 +39,7 @@ export default function Home(props: IHome) {
       setMessage("");
     }
   };
-  
+
   if (loading) {
     return (
       <div className="w-full h-screen flex justify-center items-center">
