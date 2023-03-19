@@ -1,15 +1,19 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import cx from "classnames";
-import { MdSend } from "react-icons/md";
 import { signOut } from "firebase/auth";
+import { SnapshotMetadata } from "firebase/firestore";
 import {
   DataChatMessage,
   useDeleteMessage,
   useMessages,
   useSendMessage,
 } from "../service";
-import Button from "@/components/Button";
 import { auth } from "../../../../lib/firebase.config";
+import ChannelList from "../ChannelList";
+
+import Button from "@/components/Button";
+import { MdSend } from "react-icons/md";
 
 export type IChatRoom = {
   roomId: number;
@@ -20,41 +24,55 @@ export type IChatRoom = {
 };
 
 export const ChatRoom = (props: IChatRoom) => {
-  const [messages] = useMessages();
+  const router = useRouter();
+  const activeChannel =
+    (router.query.channelId as string) ?? "T415kos6wzfgjKDBpWe3";
+
+  const [messages, loading, error] = useMessages(activeChannel);
 
   return (
     <main className="bg-turquoise-200 mx-auto h-screen flex">
-      <aside className="flex w-[256px]">
-        <div className="flex flex-col gap-4 p-4 w-full">
-          <RoomListItem />
-          <RoomListItem />
-          <RoomListItem />
-          <RoomListItem />
-          <div>
-            <div>{auth.currentUser!.displayName}</div>
+      <aside className="flex flex-col w-[256px]">
+        <div className="h-16 w-full"></div>
+        <div className="flex flex-col flex-1 gap-4 p-4 w-full overflow-hidden">
+          <ChannelList
+            activeChannel={activeChannel}
+            className="flex flex-1 flex-col overflow-y-scroll"
+          />
+          <div className="flex">
+            <div className="flex-1 font-semibold">
+              {auth.currentUser!.displayName}
+            </div>
             <Button onClick={() => signOut(auth)}>Logout</Button>
           </div>
         </div>
       </aside>
       <section className="flex flex-auto flex-col items-stretch">
-        <div className="p-4">
+        <div className="h-16 p-4">
           <h1 className="font-bold text-2xl text-center">Room Name</h1>
         </div>
         <div className="flex flex-auto flex-col bg-white rounded-3xl rounded-b-none overflow-hidden p-8 pt-0">
           <div className="flex flex-1 flex-col overflow-y-scroll">
-            {messages.map((message) => (
-              <ChatMessage key={message.id} message={message} />
+            {messages?.docs.map((message) => (
+              <ChatMessage
+                key={message.id}
+                message={message.data()}
+                metadata={message.metadata}
+              />
             ))}
           </div>
-          <SendChatMessage />
+          <SendChatMessage activeChannel={activeChannel} />
         </div>
       </section>
     </main>
   );
 };
 
-const SendChatMessage = () => {
-  const { sendMessage } = useSendMessage();
+type ISendChatMessage = {
+  activeChannel: string;
+};
+const SendChatMessage = (props: ISendChatMessage) => {
+  const { sendMessage } = useSendMessage(props.activeChannel);
 
   const [message, setMessage] = useState("");
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,6 +109,7 @@ const SendChatMessage = () => {
 
 type IChatMessage = {
   message: DataChatMessage;
+  metadata: SnapshotMetadata;
 };
 const ChatMessage = (props: IChatMessage) => {
   const { uid } = auth.currentUser!;
@@ -115,25 +134,9 @@ const ChatMessage = (props: IChatMessage) => {
           </button>
         ) : null}
       </p>
-      <p className={cx(message.metadata.hasPendingWrites && "opacity-50")}>
+      <p className={cx(props.metadata.hasPendingWrites && "opacity-50")}>
         {message.content}
       </p>
-    </div>
-  );
-};
-
-type IRoomListItem = {
-  active?: boolean;
-};
-const RoomListItem = (props: IRoomListItem) => {
-  return (
-    <div
-      className={cx(
-        props.active && "bg-white bg-opacity-75",
-        "font-semibold p-2 rounded-xl w-full"
-      )}
-    >
-      Room Name
     </div>
   );
 };
