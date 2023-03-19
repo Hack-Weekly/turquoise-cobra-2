@@ -7,10 +7,15 @@ export default function LoginBox() {
   const onSignInAnonymously = (e: React.BaseSyntheticEvent) => {
     e.preventDefault();
     const aux = async () => {
-      const auth = getAuth();
-      await signInAnonymously(auth);
-      const user = auth.currentUser!;
-      await updateProfile(user, { displayName });
+      try {
+        const auth = getAuth();
+        await signInAnonymously(auth);
+        const user = auth.currentUser!;
+        await updateProfile(user, { displayName });
+      } catch (e) {
+        // TODO: Handle errors
+        console.log(e);
+      }
     };
     aux();
   };

@@ -1,16 +1,20 @@
-import { useEffect, useState } from "react";
 import {
   addDoc,
   collection,
   deleteDoc,
   doc,
   limit,
-  onSnapshot,
   orderBy,
   query,
+  DocumentData,
+  FirestoreDataConverter,
+  QueryDocumentSnapshot,
+  SnapshotOptions,
+  WithFieldValue,
+  where,
   serverTimestamp,
-  SnapshotMetadata,
 } from "firebase/firestore";
+import { useCollection } from "react-firebase-hooks/firestore";
 import { auth, db } from "../../../lib/firebase.config";
 
 export type DataChatMessage = {
@@ -23,39 +27,88 @@ export type DataChatMessage = {
   content: string;
 
   id: string;
-  metadata: SnapshotMetadata;
 };
 
-export const useMessages = () => {
-  const [messages, setMessages] = useState<Array<DataChatMessage>>([]);
+export type DataChatChannel = {
+  name: string;
+  server: string;
 
-  useEffect(() => {
-    const q = query(
-      collection(db, "messages"),
-      orderBy("createdAt"),
-      limit(50)
-    );
-
-    const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
-      let messages: Array<DataChatMessage> = [];
-      QuerySnapshot.forEach((doc: any) => {
-        messages.push({ ...doc.data(), id: doc.id, metadata: doc.metadata });
-      });
-      setMessages(messages);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  return [messages];
+  id: string;
 };
 
-export const useSendMessage = () => {
+const chatChannelConverter: FirestoreDataConverter<DataChatChannel> = {
+  toFirestore(data: WithFieldValue<DataChatChannel>): DocumentData {
+    return {
+      name: data.name,
+      server: data.server,
+    };
+  },
+  fromFirestore(
+    snapshot: QueryDocumentSnapshot,
+    options: SnapshotOptions
+  ): DataChatChannel {
+    const data = snapshot.data(options);
+    return {
+      id: snapshot.id,
+      name: data.name,
+      server: data.server,
+    };
+  },
+};
+
+export const useChannels = () => {
+  const q = query(
+    collection(db, "channels"),
+    orderBy("createdAt", "desc"),
+    limit(50)
+  ).withConverter(chatChannelConverter);
+
+  return useCollection<DataChatChannel>(q, {
+    snapshotListenOptions: { includeMetadataChanges: true },
+  });
+};
+
+const chatMessagesConverter: FirestoreDataConverter<DataChatMessage> = {
+  toFirestore(data: WithFieldValue<DataChatMessage>): DocumentData {
+    return {
+      channelId: data.channelId,
+      author: data.author,
+      content: data.content,
+    };
+  },
+  fromFirestore(
+    snapshot: QueryDocumentSnapshot,
+    options: SnapshotOptions
+  ): DataChatMessage {
+    const data = snapshot.data(options);
+    return {
+      id: snapshot.id,
+      channelId: data.channelId,
+      author: data.author,
+      content: data.content,
+    };
+  },
+};
+
+export const useMessages = (channelId: string) => {
+  const q = query(
+    collection(db, "messages"),
+    where("channelId", "==", channelId),
+    orderBy("createdAt", "asc"),
+    limit(50)
+  ).withConverter(chatMessagesConverter);
+
+  return useCollection<DataChatMessage>(q, {
+    snapshotListenOptions: { includeMetadataChanges: true },
+  });
+};
+
+export const useSendMessage = (channelId: string) => {
   const sendMessage = async (content: string) => {
     if (auth.currentUser) {
       const { uid, displayName, photoURL } = auth.currentUser;
       const message: Omit<DataChatMessage, "id" | "metadata"> = {
-        channelId: "",
+        channelId,
         content,
         author: {
           uid,
