@@ -14,6 +14,8 @@ import ChannelList from "../ChannelList";
 
 import Button from "@/components/Button";
 import { MdSend } from "react-icons/md";
+import ProfilePage from "@/pages/profile/[profileId]";
+import Link from "next/link";
 
 export type IChatRoom = {
   roomId: number;
@@ -41,7 +43,7 @@ export const ChatRoom = (props: IChatRoom) => {
           />
           <div className="flex">
             <div className="flex-1 font-semibold">
-              {auth.currentUser!.displayName}
+              <Link href={`/profile/${auth.currentUser.uid}`} className="hover:underline">{auth.currentUser!.displayName}</Link>
             </div>
             <Button onClick={() => signOut(auth)}>Logout</Button>
           </div>
