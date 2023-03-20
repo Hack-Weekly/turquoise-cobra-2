@@ -11,7 +11,7 @@ import {
 } from "../service";
 import { auth } from "../../../../lib/firebase.config";
 import ChannelList from "../ChannelList";
-import { useChannels } from "../service";
+import { useChannel } from "../service";
 
 import Button from "@/components/Button";
 import { MdSend } from "react-icons/md";
@@ -32,8 +32,7 @@ export const ChatRoom = (props: IChatRoom) => {
   const [messages, loading, error] = useMessages(activeChannel);
 
   //determine the current channel's name and send it to the h1 element
-  const [channels, channelsLoading, channelsError] = useChannels();
-  const channelName = channels?.docs.map((ch) => ch.data()).find((ch) => ch.id === activeChannel)?.name
+  const [channel, channelsLoading, channelsError] = useChannel(activeChannel);
 
   return (
     <main className="bg-turquoise-200 mx-auto h-screen flex">
@@ -54,7 +53,7 @@ export const ChatRoom = (props: IChatRoom) => {
       </aside>
       <section className="flex flex-auto flex-col items-stretch">
         <div className="h-16 p-4">
-          <h1 className="font-bold text-2xl text-center">{channelName}</h1>
+          <h1 className="font-bold text-2xl text-center">{channel ? channel.name : "Room Name"}</h1>
         </div>
         <div className="flex flex-auto flex-col bg-white rounded-3xl rounded-b-none overflow-hidden p-8 pt-0">
           <div className="flex flex-1 flex-col overflow-y-scroll">
