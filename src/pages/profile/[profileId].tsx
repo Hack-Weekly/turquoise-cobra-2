@@ -1,10 +1,9 @@
 import LoginBox from "@/components/LoginBox";
-import { ChatRoom } from "@/features/chat/ChatRoom";
-import Link from "next/link";
+import Profile from "@/components/Profile";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../../lib/firebase.config";
 
-export default function ProfilePage() {
+export default function ProfileMain() {
   const [user, loading] = useAuthState(auth);
 
   let component = <div />;
@@ -18,13 +17,7 @@ export default function ProfilePage() {
   } else if (!user) {
     component = <LoginBox />;
   } else if (user) {
-    component = (
-      <div className="w-full h-screen flex flex-auto flex-col gap-4 justify-center items-center">
-        <h2 className="text-2xl font-calistoga">Profile Page</h2>
-        <p>Your Name: username</p>
-        <Link href={`/channels/T415kos6wzfgjKDBpWe3`} className="hover:underline">Return to Chat Room</Link>
-      </div>
-    );
+    component = <Profile />
   }
   return (
     <> 
