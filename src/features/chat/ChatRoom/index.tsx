@@ -17,6 +17,8 @@ import Button from "@/components/Button";
 import { ChatRoomSendMessage } from "../ChatRoomSendMessage";
 import ChatRoomChatMessage from "../ChatRoomChatMessage";
 import { MdSend } from "react-icons/md";
+import ProfilePage from "@/pages/profile/[profileId]";
+import Link from "next/link";
 
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
@@ -50,7 +52,7 @@ export const ChatRoom = (props: IChatRoom) => {
           />
           <div className="flex">
             <div className="flex-1 font-semibold">
-              {auth.currentUser!.displayName}
+              <Link href={`/profile/${auth.currentUser.uid}`} className="hover:underline">{auth.currentUser!.displayName}</Link>
             </div>
             <Button onClick={() => signOut(auth)}>Logout</Button>
           </div>
