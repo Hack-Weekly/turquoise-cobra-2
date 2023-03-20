@@ -14,7 +14,7 @@ import {
   where,
   serverTimestamp,
 } from "firebase/firestore";
-import { useCollection } from "react-firebase-hooks/firestore";
+import { useCollection, useDocumentData } from "react-firebase-hooks/firestore";
 import { auth, db } from "../../../lib/firebase.config";
 
 export type DataChatMessage = {
@@ -54,6 +54,14 @@ const chatChannelConverter: FirestoreDataConverter<DataChatChannel> = {
       server: data.server,
     };
   },
+};
+
+export const useChannel = (channelId: string) => {
+  const q = doc(db, "channels", channelId).withConverter(chatChannelConverter);
+
+  return useDocumentData<DataChatChannel>(q, {
+    snapshotListenOptions: { includeMetadataChanges: true },
+  });
 };
 
 export const useChannels = () => {
