@@ -3,6 +3,7 @@ import LoginBox from "@/components/LoginBox";
 import { ChatRoom } from "@/features/chat/ChatRoom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../lib/firebase.config";
+import SkeletonLoader from "@/components/SkeletonLoader";
 
 export default function Home() {
   const [user, loading] = useAuthState(auth);
@@ -11,9 +12,7 @@ export default function Home() {
 
   if (loading) {
     component = (
-      <div className="w-full h-screen flex justify-center items-center">
-        <h1>loading...</h1>
-      </div>
+      <SkeletonLoader />
     );
   } else if (!user) {
     component = <LoginBox />;
