@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "emulate": "firebase emulators:start --import=./.firebase-emulator-seed",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
