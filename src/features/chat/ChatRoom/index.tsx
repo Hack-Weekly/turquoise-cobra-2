@@ -16,6 +16,9 @@ import { useChannel } from "../service";
 import Button from "@/components/Button";
 import { MdSend } from "react-icons/md";
 
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
+
 export type IChatRoom = {
   roomId: number;
   author: {
@@ -53,7 +56,7 @@ export const ChatRoom = (props: IChatRoom) => {
       </aside>
       <section className="flex flex-auto flex-col items-stretch">
         <div className="h-16 p-4">
-          <h1 className="font-bold text-2xl text-center">{channel ? channel.name : "Room Name"}</h1>
+          <h1 className="font-bold text-2xl text-center">{channel ? channel.name : <Skeleton width={150} />}</h1>
         </div>
         <div className="flex flex-auto flex-col bg-white rounded-3xl rounded-b-none overflow-hidden p-8 pt-0">
           <div className="flex flex-1 flex-col overflow-y-scroll">
@@ -63,7 +66,7 @@ export const ChatRoom = (props: IChatRoom) => {
                 message={message.data()}
                 metadata={message.metadata}
               />
-            ))}
+            )) || <div className='mt-7'><Skeleton count={10} width={120} height={45} className='mb-4' /></div>}
           </div>
           <SendChatMessage activeChannel={activeChannel} />
         </div>
