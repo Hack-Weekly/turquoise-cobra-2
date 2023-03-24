@@ -1,7 +1,12 @@
 import { Descendant, Node, Text } from "slate";
+import { DataChatMessage, DataUser } from "../service";
+import { MentionElement } from "./useMention";
 
-export const serialize = (value: Descendant[]) => {
-  return value
+export const serialize = (
+  value: Descendant[]
+): Omit<DataChatMessage, "id" | "metadata"> => {
+  const mentions: DataUser[] = [];
+  const content = value
     .map((node) => {
       if (Text.isText(node)) {
         return node.text;
@@ -9,10 +14,11 @@ export const serialize = (value: Descendant[]) => {
         return node.children
           .map((node) => {
             if ("type" in node) {
-              const customNode = node as any;
+              const customNode = node as MentionElement;
               switch (node.type) {
                 case "mention":
-                  return `<@${customNode.character}>`;
+                  mentions.push(customNode.user);
+                  return `<@${customNode.user.id}>`;
               }
             }
             return Node.string(node);
@@ -21,4 +27,6 @@ export const serialize = (value: Descendant[]) => {
       }
     })
     .join("\n");
+
+  return { content, mentions };
 };

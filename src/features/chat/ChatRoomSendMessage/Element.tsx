@@ -36,11 +36,10 @@ const Mention = ({ attributes, children, element }: any) => {
     <span
       {...attributes}
       contentEditable={false}
-      data-cy={`mention-${element.character.replace(" ", "-")}`}
+      data-cy={`mention-${element.user.id.replace(" ", "-")}`}
       style={style}
     >
-      @{element.character}
-      {children}
+      @{element.user.displayName}
     </span>
   );
 };

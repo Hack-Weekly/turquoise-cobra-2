@@ -27,13 +27,12 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
   const decorate = useDecorate();
 
   const {
-    chars,
+    usernames,
     editor,
     index,
     setIndex,
     onChange,
     onKeyDown,
-    onPaste,
     target,
     setTarget,
     renderElement,
@@ -58,20 +57,20 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
           onKeyDown={onKeyDown}
         />
       </Slate>
-      {target && chars.length > 0 && (
+      {target && usernames.length > 0 && (
         <div
           className={cx(
             "absolute left-0 right-0 bottom-[calc(100%+8px)] shadow-md border border-2 border-slate-200",
             "bg-white flex flex-col overflow-hidden w-full p-2 rounded-md"
           )}
         >
-          {chars.map((char, i) => (
+          {usernames.map((user, i) => (
             <div
-              key={char}
+              key={user.displayName}
               onClick={(e) => {
                 e.preventDefault();
                 Transforms.select(editor, target);
-                insertMention(editor, char);
+                insertMention(editor, user);
                 setTarget(null);
                 ReactEditor.focus(editor);
               }}
@@ -84,7 +83,7 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
                 "text-left p-2 rounded-md overflow-hidden hover:cursor-pointer"
               )}
             >
-              {char}
+              {user.displayName}
             </div>
           ))}
         </div>
