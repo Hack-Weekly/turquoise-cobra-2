@@ -29,8 +29,8 @@ export const ChatRoom = (props: IChatRoom) => {
   const [channel, channelsLoading, channelsError] = useChannel(activeChannel);
 
   return (
-    <main className="bg-turquoise-200 mx-auto h-screen flex">
-      <aside className="flex flex-col w-[256px]">
+    <main className="bg-turquoise-200 mx-auto h-screen flex items-stretch">
+      <aside className="flex flex-col w-[256px] flex-initial shrink-0">
         <div className="h-16 w-full"></div>
         <div className="flex flex-col flex-1 gap-4 p-4 w-full overflow-hidden">
           <ChannelList
