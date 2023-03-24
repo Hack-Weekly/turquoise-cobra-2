@@ -4,6 +4,8 @@ import { ReactEditor, withReact } from "slate-react";
 import { EditableProps } from "slate-react/dist/components/editable";
 import { Leaf } from "./Leaf";
 import { Element } from "./Element";
+import { useSendMessage } from "../service";
+import { deserialize, serialize } from "./chatSerializer";
 
 export type MentionElement = {
   type: "mention";
@@ -17,13 +19,16 @@ export const insertMention = (editor: any, character: string) => {
   const mention: MentionElement = {
     type: "mention",
     character,
-    children: [{ text: "" }],
+    children: [{ text: `@${character}` }],
   };
   Transforms.insertNodes(editor, mention);
   Transforms.move(editor);
+  Editor.insertText(editor, " ");
 };
 
-export const useMention = () => {
+export const useMention = (activeChannel: string) => {
+  const { sendMessage } = useSendMessage(activeChannel);
+
   const [editor] = useState<ReactEditor>(() =>
     withMentions(withReact(createEditor()))
   );
@@ -112,12 +117,30 @@ export const useMention = () => {
             event.preventDefault();
             Transforms.select(editor, target);
             insertMention(editor, chars[index]);
+            insertMention;
             setTarget(null);
             break;
           case "Escape":
             event.preventDefault();
             setTarget(null);
             break;
+        }
+      } else {
+        if (event.key === "Enter") {
+          if (event.shiftKey) {
+            // create newline on shift+enter
+          } else {
+            event.preventDefault();
+            const serialized = serialize(editor.children);
+            sendMessage(serialized);
+            // replace entire content to empty/delete
+            Transforms.delete(editor, {
+              at: {
+                anchor: Editor.start(editor, []),
+                focus: Editor.end(editor, []),
+              },
+            });
+          }
         }
       }
     },

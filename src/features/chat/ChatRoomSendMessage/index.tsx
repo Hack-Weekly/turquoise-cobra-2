@@ -1,5 +1,4 @@
 import cx from "classnames";
-import { useSendMessage } from "../service";
 import { Transforms } from "slate";
 import { Slate, Editable, ReactEditor } from "slate-react";
 import { useDecorate } from "./decorate";
@@ -7,6 +6,7 @@ import { insertMention, useMention } from "./useMention";
 
 import "prismjs";
 import "prismjs/components/prism-markdown";
+import { useEffect } from "react";
 
 const initialValue = [
   {
@@ -21,10 +21,9 @@ const initialValue = [
 
 type IChatRoomSendMessage = {
   activeChannel: string;
+  message?: string;
 };
 export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
-  const { sendMessage } = useSendMessage(props.activeChannel);
-
   const decorate = useDecorate();
 
   const {
@@ -38,7 +37,15 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
     setTarget,
     renderElement,
     renderLeaf,
-  } = useMention();
+  } = useMention(props.activeChannel);
+
+  const { message } = props;
+  useEffect(() => {
+    if (message) {
+      Transforms.insertText(editor, message);
+      console.log(message);
+    }
+  }, [message]);
 
   return (
     <div className="border px-4 py-2 rounded-lg relative">

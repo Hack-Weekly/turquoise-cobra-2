@@ -1,14 +1,13 @@
 import { useRouter } from "next/router";
-import cx from "classnames";
 import { signOut } from "firebase/auth";
-import { SnapshotMetadata } from "firebase/firestore";
-import { DataChatMessage, useDeleteMessage, useMessages } from "../service";
+import { useMessages } from "../service";
 import { auth } from "../../../../lib/firebase.config";
 import ChannelList from "../ChannelList";
 import { useChannel } from "../service";
 
 import Button from "@/components/Button";
 import { ChatRoomSendMessage } from "../ChatRoomSendMessage";
+import ChatRoomChatMessage from "../ChatRoomChatMessage";
 
 export type IChatRoom = {
   roomId: number;
@@ -54,7 +53,7 @@ export const ChatRoom = (props: IChatRoom) => {
         <div className="flex flex-auto flex-col bg-white rounded-3xl rounded-b-none overflow-hidden p-8 pt-0">
           <div className="flex flex-1 flex-col overflow-y-scroll">
             {messages?.docs.map((message) => (
-              <ChatMessage
+              <ChatRoomChatMessage
                 key={message.id}
                 message={message.data()}
                 metadata={message.metadata}
@@ -65,39 +64,5 @@ export const ChatRoom = (props: IChatRoom) => {
         </div>
       </section>
     </main>
-  );
-};
-
-type IChatMessage = {
-  message: DataChatMessage;
-  metadata: SnapshotMetadata;
-};
-const ChatMessage = (props: IChatMessage) => {
-  const { uid } = auth.currentUser!;
-  const { deleteMessage } = useDeleteMessage();
-  const { message } = props;
-
-  return (
-    <div className="first:pt-8 pb-4">
-      <p className="flex gap-4 items-center">
-        {message.author.displayName ? (
-          <span className="font-bold">{message.author.displayName}</span>
-        ) : (
-          <span className="font-bold italic text-slate-600">Anonymous</span>
-        )}
-        <span className="text-slate-400 text-sm">12:15 PM</span>
-        {uid === message.author.uid ? (
-          <button
-            className="inline-block bg-red-400 px-2"
-            onClick={() => deleteMessage(message.id)}
-          >
-            Delete
-          </button>
-        ) : null}
-      </p>
-      <p className={cx(props.metadata.hasPendingWrites && "opacity-50")}>
-        {message.content}
-      </p>
-    </div>
   );
 };
