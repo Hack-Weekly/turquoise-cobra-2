@@ -5,22 +5,20 @@ import { jsx } from "slate-hyperscript";
 import { EditableProps } from "slate-react/dist/components/editable";
 import { Leaf } from "./Leaf";
 import { Element } from "./Element";
-import { useSendMessage } from "../service";
+import { DataUser, useAutocompleteUsername, useSendMessage } from "../service";
 import { serialize } from "./chatSerializer";
 
 export type MentionElement = {
   type: "mention";
-  character: string;
+  user: DataUser;
   children: [{ text: string }];
 };
 
-const CHARACTERS = ["AMEA", "AMEB", "BMEA", "BMEB"];
-
-export const insertMention = (editor: any, character: string) => {
+export const insertMention = (editor: any, user: DataUser) => {
   const mention: MentionElement = {
     type: "mention",
-    character,
-    children: [{ text: `@${character}` }],
+    user: user,
+    children: [{ text: `@${user.displayName}` }],
   };
   Transforms.insertNodes(editor, mention);
   Transforms.move(editor);
@@ -29,6 +27,7 @@ export const insertMention = (editor: any, character: string) => {
 
 export const useMention = (activeChannel: string) => {
   const { sendMessage } = useSendMessage(activeChannel);
+  const { usernames, fetchUsernames } = useAutocompleteUsername();
 
   const [editor] = useState<ReactEditor>(() =>
     withMentions(withReact(createEditor()))
@@ -45,10 +44,6 @@ export const useMention = (activeChannel: string) => {
     (props) => <Leaf {...props} />,
     []
   );
-
-  const chars = CHARACTERS.filter((c) =>
-    c.toLowerCase().startsWith(search.toLowerCase())
-  ).slice(0, 10);
 
   const onChange = () => {
     const { selection } = editor;
@@ -77,11 +72,13 @@ export const useMention = (activeChannel: string) => {
       const afterMatch = afterText.match(/^(\s|$)/);
 
       if (beforeMatch && afterMatch) {
+        fetchUsernames("", beforeMatch[1]);
         setTarget(beforeRange);
         setSearch(beforeMatch[1]);
         setIndex(0);
         return;
       } else if (charBeforeText === "@" && afterMatch) {
+        fetchUsernames("", "");
         // when word is empty
         setTarget({
           ...afterRange,
@@ -101,24 +98,23 @@ export const useMention = (activeChannel: string) => {
 
   const onKeyDown = useCallback<NonNullable<EditableProps["onKeyDown"]>>(
     (event) => {
-      if (target && chars.length > 0) {
+      if (target && usernames.length > 0) {
         switch (event.key) {
           case "ArrowDown":
             event.preventDefault();
-            const prevIndex = index >= chars.length - 1 ? 0 : index + 1;
+            const prevIndex = index >= usernames.length - 1 ? 0 : index + 1;
             setIndex(prevIndex);
             break;
           case "ArrowUp":
             event.preventDefault();
-            const nextIndex = index <= 0 ? chars.length - 1 : index - 1;
+            const nextIndex = index <= 0 ? usernames.length - 1 : index - 1;
             setIndex(nextIndex);
             break;
           case "Tab":
           case "Enter":
             event.preventDefault();
             Transforms.select(editor, target);
-            insertMention(editor, chars[index]);
-            insertMention;
+            insertMention(editor, usernames[index]);
             setTarget(null);
             break;
           case "Escape":
@@ -132,8 +128,7 @@ export const useMention = (activeChannel: string) => {
             // create newline on shift+enter
           } else {
             event.preventDefault();
-            const serialized = serialize(editor.children);
-            sendMessage(serialized);
+            sendMessage(editor.children);
             // replace entire content to empty/delete
             Transforms.delete(editor, {
               at: {
@@ -145,7 +140,7 @@ export const useMention = (activeChannel: string) => {
         }
       }
     },
-    [chars, editor, index, target]
+    [usernames, editor, index, target]
   );
 
   const onPaste = useCallback<NonNullable<EditableProps["onPaste"]>>(
@@ -156,7 +151,7 @@ export const useMention = (activeChannel: string) => {
   );
 
   return {
-    chars,
+    usernames,
     editor,
     index,
     setIndex,

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { getAuth, signInAnonymously, updateProfile } from "firebase/auth";
 import Button from "./Button";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../lib/firebase.config";
 
 export default function LoginBox() {
   const [displayName, setUsername] = useState("");
@@ -12,6 +14,10 @@ export default function LoginBox() {
         await signInAnonymously(auth);
         const user = auth.currentUser!;
         await updateProfile(user, { displayName });
+        const userRef = doc(db, "users", user.uid);
+        await setDoc(userRef, {
+          displayName,
+        });
       } catch (e) {
         // TODO: Handle errors
         console.log(e);

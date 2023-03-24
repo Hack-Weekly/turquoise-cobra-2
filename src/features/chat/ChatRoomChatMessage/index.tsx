@@ -1,24 +1,37 @@
 import { useEffect, useState, Fragment } from "react";
 import { SnapshotMetadata } from "firebase/firestore";
 import type { ASTNode, SingleASTNode } from "simple-markdown";
-import { parse } from "discord-markdown-parser";
-import { DataChatMessage, useDeleteMessage } from "../service";
+import { parse } from "./parse";
+import { DataChatMessage, DataUser, useDeleteMessage } from "../service";
 import { auth } from "../../../../lib/firebase.config";
 
 export type IChatRoomChatMessage = {
   message: DataChatMessage;
   metadata: SnapshotMetadata;
 };
+
+type Users = {
+  [id: string]: DataUser;
+};
 export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
   const { uid } = auth.currentUser!;
   const { deleteMessage } = useDeleteMessage();
   const { message } = props;
   const [nodes, setNodes] = useState<SimpleMarkdown.SingleASTNode[]>();
+  const [users, setUsers] = useState<Users>({});
 
   useEffect(() => {
     const aux = async () => {
       const parsed = parse(message.content, "normal");
       setNodes(parsed);
+      if (message.mentions) {
+        for (let mention of message.mentions) {
+          setUsers((users) => ({
+            ...users,
+            [mention.id]: mention,
+          }));
+        }
+      }
     };
     aux();
   }, [message, setNodes]);
@@ -32,7 +45,7 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
           <span className="font-bold italic text-slate-600">Anonymous</span>
         )}
         <span className="text-slate-400 text-sm">12:15 PM</span>
-        {uid === message.author.uid ? (
+        {uid === message.author.id ? (
           <button
             className="inline-block bg-red-400 px-2"
             onClick={() => deleteMessage(message.id)}
@@ -41,24 +54,32 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
           </button>
         ) : null}
       </p>
-      {nodes && <DiscordNodes nodes={nodes} />}
+      {nodes && <DiscordNodes nodes={nodes} users={users} />}
     </div>
   );
 };
 
-const DiscordNodes = ({ nodes }: { nodes: ASTNode }) => {
+const DiscordNodes = ({ nodes, users }: { nodes: ASTNode; users: Users }) => {
   return (
     <Fragment>
       {Array.isArray(nodes) ? (
-        nodes.map((node, i) => <DiscordASTNode key={i} node={node} />)
+        nodes.map((node, i) => (
+          <DiscordASTNode key={i} node={node} users={users} />
+        ))
       ) : (
-        <DiscordASTNode node={nodes} />
+        <DiscordASTNode node={nodes} users={users} />
       )}
     </Fragment>
   );
 };
 
-const DiscordASTNode = ({ node }: { node: SingleASTNode }) => {
+const DiscordASTNode = ({
+  node,
+  users,
+}: {
+  node: SingleASTNode;
+  users: Users;
+}) => {
   if (!node) return null;
 
   const type = node.type;
@@ -70,7 +91,7 @@ const DiscordASTNode = ({ node }: { node: SingleASTNode }) => {
     case "link":
       return (
         <a href={node.target}>
-          <DiscordNodes nodes={node.content} />
+          <DiscordNodes nodes={node.content} users={users} />
         </a>
       );
 
@@ -78,14 +99,14 @@ const DiscordASTNode = ({ node }: { node: SingleASTNode }) => {
     case "autolink":
       return (
         <a href={node.target} target="_blank" rel="noreferrer">
-          <DiscordNodes nodes={node.content} />
+          <DiscordNodes nodes={node.content} users={users} />
         </a>
       );
 
     case "blockQuote":
       return (
         <blockquote className="border-0 border-l-4 pl-2 border-slate-300">
-          <DiscordNodes nodes={node.content} />
+          <DiscordNodes nodes={node.content} users={users} />
         </blockquote>
       );
 
@@ -97,7 +118,12 @@ const DiscordASTNode = ({ node }: { node: SingleASTNode }) => {
     case "role":
     case "user": {
       const id = node.id as string;
-      return <div>{id}</div>;
+      const name = users[id]?.displayName ?? id;
+      return (
+        <span className="bg-turquoise-200 px-1 inline-block rounded-md">
+          @{name}
+        </span>
+      );
     }
 
     case "here":
@@ -110,35 +136,35 @@ const DiscordASTNode = ({ node }: { node: SingleASTNode }) => {
     case "inlineCode":
       return (
         <code>
-          <DiscordNodes nodes={node.content} />
+          <DiscordNodes nodes={node.content} users={users} />
         </code>
       );
 
     case "em":
       return (
         <em>
-          <DiscordNodes nodes={node.content} />
+          <DiscordNodes nodes={node.content} users={users} />
         </em>
       );
 
     case "strong":
       return (
         <strong>
-          <DiscordNodes nodes={node.content} />
+          <DiscordNodes nodes={node.content} users={users} />
         </strong>
       );
 
     case "underline":
       return (
         <u>
-          <DiscordNodes nodes={node.content} />
+          <DiscordNodes nodes={node.content} users={users} />
         </u>
       );
 
     case "strikethrough":
       return (
         <s>
-          <DiscordNodes nodes={node.content} />
+          <DiscordNodes nodes={node.content} users={users} />
         </s>
       );
 
@@ -146,13 +172,13 @@ const DiscordASTNode = ({ node }: { node: SingleASTNode }) => {
       return typeof node.content === "string" ? (
         node.content
       ) : (
-        <DiscordNodes nodes={node.content} />
+        <DiscordNodes nodes={node.content} users={users} />
       );
 
     case "spoiler":
       return (
         <span className="bg-slate-200">
-          <DiscordNodes nodes={node.content} />
+          <DiscordNodes nodes={node.content} users={users} />
         </span>
       );
 
@@ -166,7 +192,11 @@ const DiscordASTNode = ({ node }: { node: SingleASTNode }) => {
       if (!isString) {
         console.debug(`Unknown node type: ${type}`, node);
       }
-      return isString ? node.content : <DiscordNodes nodes={node.content} />;
+      return isString ? (
+        node.content
+      ) : (
+        <DiscordNodes nodes={node.content} users={users} />
+      );
     }
   }
 };
