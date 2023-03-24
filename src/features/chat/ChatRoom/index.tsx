@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import cx from "classnames";
 import { signOut } from "firebase/auth";
@@ -36,8 +36,6 @@ export const ChatRoom = (props: IChatRoom) => {
   const activeChannel =
     (router.query.channelId as string) ?? "T415kos6wzfgjKDBpWe3";
 
-  const [messages, loading, error] = useMessages(activeChannel);
-
   //determine the current channel's name and send it to the h1 element
   const [channel, channelsLoading, channelsError] = useChannel(activeChannel);
 
@@ -70,18 +68,62 @@ export const ChatRoom = (props: IChatRoom) => {
           </h1>
         </div>
         <div className="flex flex-auto flex-col bg-white rounded-3xl rounded-b-none overflow-hidden p-8 pt-0">
-          <div className="flex flex-1 flex-col overflow-y-scroll">
-            {messages?.docs.map((message) => (
-              <ChatRoomChatMessage
-                key={message.id}
-                message={message.data()}
-                metadata={message.metadata}
-              />
-            ))}
-          </div>
+          <ChatMessages activeChannel={activeChannel} />
           <ChatRoomSendMessage activeChannel={activeChannel} />
         </div>
       </section>
     </main>
   );
 };
+
+const ChatMessages = ({ activeChannel }: { activeChannel: string }) => {
+  const [messages, loading, error] = useMessages(activeChannel);
+
+  const lastMessageRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const messagesLenRef = useRef<number>(0);
+
+  useLayoutEffect(() => {
+    if (containerRef.current) {
+      const { offsetHeight, scrollHeight, scrollTop } = containerRef.current;
+
+      if (messagesLenRef.current === 0 && messages) {
+        // XXX: This is the only way I could make it scroll to bottom on mount
+        setTimeout(
+          () => lastMessageRef.current?.scrollIntoView({ behavior: "smooth" }),
+          100
+        );
+      }
+
+      if (scrollHeight <= scrollTop + offsetHeight + 100) {
+        lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+
+      messagesLenRef.current = messages ? messages.docs.length : 0;
+    }
+  }, [messages?.docs, messagesLenRef]);
+
+  return (
+    <div
+      className="flex grow flex-col overflow-y-scroll h-2"
+      ref={containerRef}
+    >
+      {messages &&
+        reverseMap(messages?.docs, (message) => (
+          <ChatRoomChatMessage
+            key={message.id}
+            message={message.data()}
+            metadata={message.metadata}
+          />
+        ))}
+      <div
+        ref={lastMessageRef}
+        className="w-full opacity-0 h-2 relative bottom-4"
+      ></div>
+    </div>
+  );
+};
+
+function reverseMap<T, O>(arg: T[], fn: (a: T) => O) {
+  return arg.map((_, i, arr) => fn(arr[arr.length - i - 1]));
+}

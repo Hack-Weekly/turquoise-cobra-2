@@ -4,7 +4,7 @@ service cloud.firestore {
     match /messages/{message} {
       allow read: if true;
       allow create: if request.auth != null;
-      allow delete: if request.auth.uid == resource.data.author.uid;
+      allow delete: if request.auth.uid == resource.data.author.id;
     }
     match /channels/{channel} {
       allow read: if true;
