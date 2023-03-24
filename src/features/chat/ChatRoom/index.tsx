@@ -14,6 +14,8 @@ import ChannelList from "../ChannelList";
 import { useChannel } from "../service";
 
 import Button from "@/components/Button";
+import { ChatRoomSendMessage } from "../ChatRoomSendMessage";
+import ChatRoomChatMessage from "../ChatRoomChatMessage";
 import { MdSend } from "react-icons/md";
 
 import Skeleton from 'react-loading-skeleton'
@@ -38,8 +40,8 @@ export const ChatRoom = (props: IChatRoom) => {
   const [channel, channelsLoading, channelsError] = useChannel(activeChannel);
 
   return (
-    <main className="bg-turquoise-200 mx-auto h-screen flex">
-      <aside className="flex flex-col w-[256px]">
+    <main className="bg-turquoise-200 mx-auto h-screen flex items-stretch">
+      <aside className="flex flex-col w-[256px] flex-initial shrink-0">
         <div className="h-16 w-full"></div>
         <div className="flex flex-col flex-1 gap-4 p-4 w-full overflow-hidden">
           <ChannelList
@@ -56,94 +58,23 @@ export const ChatRoom = (props: IChatRoom) => {
       </aside>
       <section className="flex flex-auto flex-col items-stretch">
         <div className="h-16 p-4">
-          <h1 className="font-bold text-2xl text-center">{channel ? channel.name : <Skeleton width={150} />}</h1>
+          <h1 className="font-bold text-2xl text-center">
+            {channel ? channel.name : <Skeleton width={150} />}
+          </h1>
         </div>
         <div className="flex flex-auto flex-col bg-white rounded-3xl rounded-b-none overflow-hidden p-8 pt-0">
           <div className="flex flex-1 flex-col overflow-y-scroll">
             {messages?.docs.map((message) => (
-              <ChatMessage
+              <ChatRoomChatMessage
                 key={message.id}
                 message={message.data()}
                 metadata={message.metadata}
               />
-            )) || <div className='mt-7'><Skeleton count={10} width={120} height={45} className='mb-4' /></div>}
+            ))}
           </div>
-          <SendChatMessage activeChannel={activeChannel} />
+          <ChatRoomSendMessage activeChannel={activeChannel} />
         </div>
       </section>
     </main>
-  );
-};
-
-type ISendChatMessage = {
-  activeChannel: string;
-};
-const SendChatMessage = (props: ISendChatMessage) => {
-  const { sendMessage } = useSendMessage(props.activeChannel);
-
-  const [message, setMessage] = useState("");
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(e.target.value);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim() !== "") {
-      sendMessage(message);
-
-      //send to backend here, for now just console log
-      setMessage("");
-    }
-  };
-
-  return (
-    <form className="flex" onSubmit={handleSubmit}>
-      <input
-        className="flex-auto px-4 py-2 border border-2 rounded-xl"
-        type="text"
-        id="new-message"
-        name="message"
-        placeholder="Type your message here"
-        value={message}
-        onChange={handleChange}
-      />
-      <button className="text-teal-600 hover:text-teal-800 p-4" type="submit">
-        <MdSend />
-      </button>
-    </form>
-  );
-};
-
-type IChatMessage = {
-  message: DataChatMessage;
-  metadata: SnapshotMetadata;
-};
-const ChatMessage = (props: IChatMessage) => {
-  const { uid } = auth.currentUser!;
-  const { deleteMessage } = useDeleteMessage();
-  const { message } = props;
-
-  return (
-    <div className="first:pt-8 pb-4">
-      <p className="flex gap-4 items-center">
-        {message.author.displayName ? (
-          <span className="font-bold">{message.author.displayName}</span>
-        ) : (
-          <span className="font-bold italic text-slate-600">Anonymous</span>
-        )}
-        <span className="text-slate-400 text-sm">12:15 PM</span>
-        {uid === message.author.uid ? (
-          <button
-            className="inline-block bg-red-400 px-2"
-            onClick={() => deleteMessage(message.id)}
-          >
-            Delete
-          </button>
-        ) : null}
-      </p>
-      <p className={cx(props.metadata.hasPendingWrites && "opacity-50")}>
-        {message.content}
-      </p>
-    </div>
   );
 };

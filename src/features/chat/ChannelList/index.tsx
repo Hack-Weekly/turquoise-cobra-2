@@ -1,7 +1,6 @@
 import cx from "classnames";
 import Link from "next/link";
 import { DataChatChannel, useChannels } from "../service";
-
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 

@@ -34,7 +34,6 @@ const app = initializeAppIfRequired();
 // const analytics = getAnalytics(app);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-
 if (process.env.NODE_ENV == "development") {
     connectAuthEmulator(auth, "http://localhost:9099");
     connectFirestoreEmulator(db, "localhost", 8080);
