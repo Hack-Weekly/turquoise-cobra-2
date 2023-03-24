@@ -1,20 +1,14 @@
-import { useState } from "react";
 import { useRouter } from "next/router";
 import cx from "classnames";
 import { signOut } from "firebase/auth";
 import { SnapshotMetadata } from "firebase/firestore";
-import {
-  DataChatMessage,
-  useDeleteMessage,
-  useMessages,
-  useSendMessage,
-} from "../service";
+import { DataChatMessage, useDeleteMessage, useMessages } from "../service";
 import { auth } from "../../../../lib/firebase.config";
 import ChannelList from "../ChannelList";
 import { useChannel } from "../service";
 
 import Button from "@/components/Button";
-import { MdSend } from "react-icons/md";
+import { ChatRoomSendMessage } from "../ChatRoomSendMessage";
 
 export type IChatRoom = {
   roomId: number;
@@ -53,7 +47,9 @@ export const ChatRoom = (props: IChatRoom) => {
       </aside>
       <section className="flex flex-auto flex-col items-stretch">
         <div className="h-16 p-4">
-          <h1 className="font-bold text-2xl text-center">{channel ? channel.name : "Room Name"}</h1>
+          <h1 className="font-bold text-2xl text-center">
+            {channel ? channel.name : "Room Name"}
+          </h1>
         </div>
         <div className="flex flex-auto flex-col bg-white rounded-3xl rounded-b-none overflow-hidden p-8 pt-0">
           <div className="flex flex-1 flex-col overflow-y-scroll">
@@ -65,49 +61,10 @@ export const ChatRoom = (props: IChatRoom) => {
               />
             ))}
           </div>
-          <SendChatMessage activeChannel={activeChannel} />
+          <ChatRoomSendMessage activeChannel={activeChannel} />
         </div>
       </section>
     </main>
-  );
-};
-
-type ISendChatMessage = {
-  activeChannel: string;
-};
-const SendChatMessage = (props: ISendChatMessage) => {
-  const { sendMessage } = useSendMessage(props.activeChannel);
-
-  const [message, setMessage] = useState("");
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(e.target.value);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim() !== "") {
-      sendMessage(message);
-
-      //send to backend here, for now just console log
-      setMessage("");
-    }
-  };
-
-  return (
-    <form className="flex" onSubmit={handleSubmit}>
-      <input
-        className="flex-auto px-4 py-2 border border-2 rounded-xl"
-        type="text"
-        id="new-message"
-        name="message"
-        placeholder="Type your message here"
-        value={message}
-        onChange={handleChange}
-      />
-      <button className="text-teal-600 hover:text-teal-800 p-4" type="submit">
-        <MdSend />
-      </button>
-    </form>
   );
 };
 
