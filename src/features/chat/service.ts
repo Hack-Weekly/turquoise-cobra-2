@@ -106,7 +106,7 @@ export const useMessages = (channelId: string) => {
   const q = query(
     collection(db, "messages"),
     where("channelId", "==", channelId),
-    orderBy("createdAt", "asc"),
+    orderBy("createdAt", "desc"),
     limit(50)
   ).withConverter(chatMessagesConverter);
 
