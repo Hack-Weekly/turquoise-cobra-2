@@ -1,6 +1,14 @@
+import { useState } from "react";
 import { useRouter } from "next/router";
+import cx from "classnames";
 import { signOut } from "firebase/auth";
-import { useMessages } from "../service";
+import { SnapshotMetadata } from "firebase/firestore";
+import {
+  DataChatMessage,
+  useDeleteMessage,
+  useMessages,
+  useSendMessage,
+} from "../service";
 import { auth } from "../../../../lib/firebase.config";
 import ChannelList from "../ChannelList";
 import { useChannel } from "../service";
@@ -8,6 +16,10 @@ import { useChannel } from "../service";
 import Button from "@/components/Button";
 import { ChatRoomSendMessage } from "../ChatRoomSendMessage";
 import ChatRoomChatMessage from "../ChatRoomChatMessage";
+import { MdSend } from "react-icons/md";
+
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 
 export type IChatRoom = {
   roomId: number;
@@ -47,7 +59,7 @@ export const ChatRoom = (props: IChatRoom) => {
       <section className="flex flex-auto flex-col items-stretch">
         <div className="h-16 p-4">
           <h1 className="font-bold text-2xl text-center">
-            {channel ? channel.name : "Room Name"}
+            {channel ? channel.name : <Skeleton width={150} />}
           </h1>
         </div>
         <div className="flex flex-auto flex-col bg-white rounded-3xl rounded-b-none overflow-hidden p-8 pt-0">

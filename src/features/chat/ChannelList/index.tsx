@@ -1,6 +1,8 @@
 import cx from "classnames";
 import Link from "next/link";
 import { DataChatChannel, useChannels } from "../service";
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 
 export type IChannelList = {
   activeChannel: string;
@@ -17,7 +19,7 @@ export const ChannelList = (props: IChannelList) => {
           active={ch.id === props.activeChannel}
           channel={ch.data()}
         />
-      ))}
+      )) || <Skeleton count={2} width={200} height={40} />}
     </div>
   );
 };

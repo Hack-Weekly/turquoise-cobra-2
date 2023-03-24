@@ -7,18 +7,14 @@ import { auth } from "../../lib/firebase.config";
 export default function Home() {
   const [user, loading] = useAuthState(auth);
 
-  let component = <div />;
+  let component = <LoginBox />;
 
-  if (loading) {
-    component = (
-      <div className="w-full h-screen flex justify-center items-center">
-        <h1>loading...</h1>
-      </div>
-    );
-  } else if (!user) {
-    component = <LoginBox />;
-  } else if (user) {
-    component = <ChatRoom roomId={0} author={{ id: 0, name: "" }} />;
+  if(!loading){
+    if (!user) {
+      component = <LoginBox />;
+    } else if (user) {
+      component = <ChatRoom roomId={0} author={{ id: 0, name: "" }} />;
+    }
   }
 
   return (
