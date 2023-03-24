@@ -99,11 +99,13 @@ const DiscordASTNode = ({ node }: { node: SingleASTNode }) => {
       const id = node.id as string;
       return <div>{id}</div>;
     }
+
     case "here":
     case "everyone": {
       const id = node.id as string;
       return <div>{id}</div>;
     }
+
     case "codeBlock":
     case "inlineCode":
       return (
@@ -139,6 +141,7 @@ const DiscordASTNode = ({ node }: { node: SingleASTNode }) => {
           <DiscordNodes nodes={node.content} />
         </s>
       );
+
     case "emoticon":
       return typeof node.content === "string" ? (
         node.content

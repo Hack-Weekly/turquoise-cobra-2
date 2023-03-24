@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
 import { Editor, Transforms, Range, createEditor } from "slate";
 import { ReactEditor, withReact } from "slate-react";
+import { jsx } from "slate-hyperscript";
 import { EditableProps } from "slate-react/dist/components/editable";
 import { Leaf } from "./Leaf";
 import { Element } from "./Element";
 import { useSendMessage } from "../service";
-import { deserialize, serialize } from "./chatSerializer";
+import { serialize } from "./chatSerializer";
 
 export type MentionElement = {
   type: "mention";
@@ -147,6 +148,13 @@ export const useMention = (activeChannel: string) => {
     [chars, editor, index, target]
   );
 
+  const onPaste = useCallback<NonNullable<EditableProps["onPaste"]>>(
+    (event) => {
+      event.preventDefault();
+    },
+    []
+  );
+
   return {
     chars,
     editor,
@@ -154,6 +162,7 @@ export const useMention = (activeChannel: string) => {
     setIndex,
     onChange,
     onKeyDown,
+    onPaste,
     target,
     setTarget,
     renderElement,
@@ -162,7 +171,7 @@ export const useMention = (activeChannel: string) => {
 };
 
 const withMentions = (editor: ReactEditor) => {
-  const { isInline, isVoid, markableVoid } = editor;
+  const { isInline, isVoid, insertData, markableVoid } = editor;
 
   editor.isInline = (element: any) => {
     return element.type === "mention" ? true : isInline(element);
@@ -176,5 +185,77 @@ const withMentions = (editor: ReactEditor) => {
     return element.type === "mention" || markableVoid(element);
   };
 
+  editor.insertData = (data) => {
+    const html = data.getData("text/html");
+
+    if (html) {
+      const parsed = new DOMParser().parseFromString(html, "text/html");
+      const fragments = deserialize(parsed.body);
+      Transforms.insertFragment(editor, fragments);
+      return;
+    }
+
+    const plain = data.getData("text/plain");
+
+    if (plain) {
+      const text = (plain || "").replace(/\t/g, "");
+      const splitText = text.split(/\r?\n/);
+      for (let line of splitText) {
+        Transforms.insertText(editor, line);
+        Transforms.insertText(editor, "\n");
+      }
+      return;
+    }
+
+    insertData(data);
+  };
+
   return editor;
+};
+
+const ELEMENT_TAGS = {
+  A: (el: HTMLElement) => ({ type: "link", url: el.getAttribute("href") }),
+  BLOCKQUOTE: () => ({ type: "blockquote" }),
+  IMG: (el: HTMLElement) => ({ type: "image", url: el.getAttribute("src") }),
+  P: () => ({ type: "paragraph" }),
+  PRE: () => ({ type: "code" }),
+};
+
+const deserialize = (el: HTMLElement | ChildNode): any => {
+  if (el.nodeType === 3) {
+    return el.textContent;
+  } else if (el.nodeType !== 1) {
+    return null;
+  } else if (el.nodeName === "BR") {
+    return "\n";
+  }
+
+  const nodeName = el.nodeName;
+  let parent: HTMLElement | ChildNode = el;
+
+  if (
+    nodeName === "PRE" &&
+    el.childNodes[0] &&
+    el.childNodes[0].nodeName === "CODE"
+  ) {
+    parent = el.childNodes[0];
+  }
+  let children = Array.from(parent.childNodes).map(deserialize).flat();
+
+  if (children.length === 0) {
+    children = [{ text: "" }];
+  }
+
+  if (el.nodeName === "BODY") {
+    return jsx("fragment", {}, children);
+  }
+
+  if (nodeName in ELEMENT_TAGS) {
+    const attrs = ELEMENT_TAGS[nodeName as keyof typeof ELEMENT_TAGS](
+      el as HTMLElement
+    );
+    return jsx("element", attrs, children);
+  }
+
+  return children;
 };

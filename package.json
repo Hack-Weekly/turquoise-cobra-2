@@ -27,6 +27,7 @@
     "react-icons": "^4.8.0",
     "slate": "^0.91.4",
     "slate-history": "^0.86.0",
+    "slate-hyperscript": "^0.77.0",
     "slate-react": "^0.92.0",
     "slate-soft-break": "^0.9.0",
     "typescript": "4.9.5"

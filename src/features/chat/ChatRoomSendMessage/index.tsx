@@ -33,6 +33,7 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
     setIndex,
     onChange,
     onKeyDown,
+    onPaste,
     target,
     setTarget,
     renderElement,
@@ -43,7 +44,6 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
   useEffect(() => {
     if (message) {
       Transforms.insertText(editor, message);
-      console.log(message);
     }
   }, [message]);
 

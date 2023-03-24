@@ -1,53 +1,73 @@
-import Prism from "prismjs";
-import { Token } from "prismjs";
-import { NodeEntry, Text } from "slate";
+import type { SingleASTNode } from "simple-markdown";
+import { NodeEntry, Range, Text } from "slate";
 import { useCallback } from "react";
+import { parse } from "discord-markdown-parser";
 
 export const useDecorate = () => {
   return useCallback(([node, path]: NodeEntry) => {
-    const ranges: any[] = [];
+    const ranges: Range[] = [];
 
     if (!Text.isText(node)) {
       return ranges;
     }
 
-    const getLength = (token: string | Token) => {
-      if (typeof token === "string") {
-        return token.length;
+    const parsed = parse(node.text, "normal");
+
+    const parseNode = (token: SingleASTNode, start: number) => {
+      let length = 0;
+      let contentLength = 0;
+      const tokenType = token.type;
+
+      switch (tokenType) {
+        case "strong":
+          length += 4;
+          break;
+        case "em":
+          length += 2;
+          break;
+        case "strikethrough":
+          length += 4;
+          break;
+        case "underline":
+          length += 4;
+          break;
+        case "spoiler":
+          length += 4;
+          break;
+        case "inlineCode":
+          length += 2;
+          break;
+      }
+
+      if (token.type === "br") {
+        contentLength = 1;
+      } else if (!("content" in token)) {
+        contentLength = 0;
       } else if (typeof token.content === "string") {
-        return token.content.length;
+        // don't count newlines
+        contentLength = token.content.replace(/(\r\n|\n|\r)/g, "").length;
       } else {
-        return (token.content as (string | Token)[]).reduce(
-          (l, t): number => l + getLength(t),
+        contentLength = (token.content as SingleASTNode[]).reduce(
+          (l, t): number => {
+            return l + parseNode(t, start + length / 2 + l);
+          },
           0
         );
       }
-    };
 
-    const tokens = Prism.tokenize(node.text, Prism.languages.markdown);
-    let start = 0;
-
-    for (const token of tokens) {
-      const length = getLength(token);
-      const end = start + length;
-      const validTypes = [
-        "bold",
-        "italic",
-        "underlined",
-        "blockquote",
-        "code-snippet",
-      ];
-
-      if (typeof token !== "string" && validTypes.indexOf(token.type) !== -1) {
+      length += contentLength;
+      let end = start + length;
+      if (tokenType !== "text") {
         ranges.push({
-          [token.type]: true,
+          [tokenType]: true,
           anchor: { path, offset: start },
           focus: { path, offset: end },
         });
       }
+      return length;
+    };
 
-      start = end;
-    }
+    parseNode({ content: parsed, type: "" }, 0);
 
     return ranges;
   }, []);
