@@ -61,16 +61,6 @@ export default function LoginBox({ loading }: { loading: Boolean }) {
             Continue
           </Button>
         </form>
-
-        <div className="text-center">OR</div>
-
-        <div className="space-y-10">
-          <div className="w-full flex justify-center">
-            <Button className="shadow-xl bg-blue-300 h-12 px-2 rounded-lg">
-              Log in with Google
-            </Button>
-          </div>
-        </div>
       </div>
     </div>
   );
