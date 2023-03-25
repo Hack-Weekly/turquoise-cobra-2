@@ -14,7 +14,7 @@ type Users = {
   [id: string]: DataUser;
 };
 export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
-  const { uid } = auth.currentUser!;
+  const uid = auth.currentUser?.uid ?? 0;
   const { deleteMessage } = useDeleteMessage();
   const { message } = props;
   const [nodes, setNodes] = useState<SimpleMarkdown.SingleASTNode[]>();
@@ -40,7 +40,9 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
     <div className="first:pt-8 pb-4">
       <p className="flex gap-4 items-center">
         {message.author.displayName ? (
-          <span className="font-bold">{message.author.displayName}</span>
+          <span className="font-bold truncate max-w-[256px]">
+            {message.author.displayName}
+          </span>
         ) : (
           <span className="font-bold italic text-slate-600">Anonymous</span>
         )}

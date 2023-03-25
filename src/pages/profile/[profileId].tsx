@@ -15,13 +15,9 @@ export default function ProfileMain() {
       </div>
     );
   } else if (!user) {
-    component = <LoginBox />;
+    component = <LoginBox loading={loading} />;
   } else if (user) {
-    component = <Profile />
+    component = <Profile />;
   }
-  return (
-    <> 
-      {component}
-    </>
-  )
+  return <>{component}</>;
 }

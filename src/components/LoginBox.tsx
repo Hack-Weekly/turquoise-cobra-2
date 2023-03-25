@@ -4,7 +4,7 @@ import Button from "./Button";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../lib/firebase.config";
 
-export default function LoginBox() {
+export default function LoginBox({ loading }: { loading: Boolean }) {
   const [displayName, setUsername] = useState("");
   const onSignInAnonymously = (e: React.BaseSyntheticEvent) => {
     e.preventDefault();
@@ -30,7 +30,7 @@ export default function LoginBox() {
     <div className="min-h-fit h-screen flex justify-center items-center">
       <div
         id="loginContainer"
-        className="bg-gradient-to-b from-white to-[#f0fbf8] flex flex-col space-y-8 px-8 py-14 rounded-3xl font-merriweatherRegular w-[512px]"
+        className="bg-[#f0fbf8] flex flex-col space-y-8 px-8 py-14 rounded-3xl font-merriweatherRegular w-[512px]"
       >
         <div className="flex flex-col justify-center items-center gap-2">
           <h2 className="text-3xl text-gunmetal-1000 font-calistoga">
@@ -54,7 +54,10 @@ export default function LoginBox() {
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
-          <Button type="submit" disabled={displayName.length === 0}>
+          <Button
+            type="submit"
+            disabled={!!(displayName.length === 0 && loading)}
+          >
             Continue
           </Button>
         </form>

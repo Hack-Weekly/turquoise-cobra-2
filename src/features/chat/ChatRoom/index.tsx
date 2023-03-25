@@ -49,13 +49,15 @@ export const ChatRoom = (props: IChatRoom) => {
             className="flex flex-1 flex-col overflow-y-scroll"
           />
           <div className="flex">
-            <div className="flex-1 font-semibold">
-              <Link
-                href={`/profile/${auth.currentUser!.uid}`}
-                className="hover:underline"
-              >
-                {auth.currentUser!.displayName}
-              </Link>
+            <div className="max-w-[120px] truncate flex-1 font-semibold hover:bg-white/50 mx-1 p-2 py-4 rounded-lg">
+              {auth.currentUser && (
+                <Link
+                  href={`/profile/${auth.currentUser.uid}`}
+                  className="hover:underline"
+                >
+                  {auth.currentUser.displayName}
+                </Link>
+              )}
             </div>
             <Button onClick={() => signOut(auth)}>Logout</Button>
           </div>
