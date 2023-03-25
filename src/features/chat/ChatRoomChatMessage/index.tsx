@@ -38,31 +38,40 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
 
   return (
     <div className="first:pt-8 pb-4">
-      <p className="flex gap-4 items-center">
-        {message.author.displayName ? (
-          <span className="font-bold truncate max-w-[256px]">
-            {message.author.displayName}
-          </span>
-        ) : (
-          <span className="font-bold italic text-slate-600">Anonymous</span>
-        )}
-        <span className="text-slate-400 text-sm">
-          {message.createdAt.toLocaleTimeString()}
-        </span>
-        {uid === message.author.id ? (
-          <button
-            className="inline-block bg-red-400 px-2"
-            onClick={() => deleteMessage(message.id)}
-          >
-            Delete
-          </button>
-        ) : null}
-      </p>
-      {message.embeds && message.embeds.length > 0 ? (
-        <img src={message.embeds[0].thumbnail.url} />
-      ) : (
-        nodes && <DiscordNodes nodes={nodes} users={users} />
-      )}
+      <div className="flex gap-4">
+        <img
+          className="w-10 h-10 rounded mt-1 bg-slate-100"
+          src={message.author?.photoURL || ""}
+          alt=""
+        />
+        <div className="flex flex-col">
+          <p className="flex 4 items-center gap-4">
+            {message.author.displayName ? (
+              <span className="font-bold truncate max-w-[256px]">
+                {message.author.displayName}
+              </span>
+            ) : (
+              <span className="font-bold italic text-slate-600">Anonymous</span>
+            )}
+            <span className="text-slate-400 text-sm">
+              {message.createdAt.toLocaleTimeString()}
+            </span>
+            {uid === message.author.id ? (
+              <button
+                className="inline-block bg-red-400 px-2"
+                onClick={() => deleteMessage(message.id)}
+              >
+                Delete
+              </button>
+            ) : null}
+          </p>
+          {message.embeds && message.embeds.length > 0 ? (
+            <img src={message.embeds[0].thumbnail.url} />
+          ) : (
+            nodes && <DiscordNodes nodes={nodes} users={users} />
+          )}
+        </div>
+      </div>
     </div>
   );
 };

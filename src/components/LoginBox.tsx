@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { getAuth, signInAnonymously, updateProfile } from "firebase/auth";
+import {
+  getAuth,
+  signInAnonymously,
+  updateProfile,
+  GithubAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import Button from "./Button";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../lib/firebase.config";
@@ -17,6 +23,26 @@ export default function LoginBox({ loading }: { loading: Boolean }) {
         const userRef = doc(db, "users", user.uid);
         await setDoc(userRef, {
           displayName,
+        });
+      } catch (e) {
+        // TODO: Handle errors
+        console.log(e);
+      }
+    };
+    aux();
+  };
+
+  const onSignInWithGithub = (e: React.BaseSyntheticEvent) => {
+    e.preventDefault();
+    const provider = new GithubAuthProvider();
+    const auth = getAuth();
+    const aux = async () => {
+      try {
+        await signInWithPopup(auth, provider);
+        const user = auth.currentUser!;
+        const userRef = doc(db, "users", user.uid);
+        await setDoc(userRef, {
+          displayName: user.displayName,
         });
       } catch (e) {
         // TODO: Handle errors
@@ -60,6 +86,19 @@ export default function LoginBox({ loading }: { loading: Boolean }) {
           >
             Continue
           </Button>
+
+          <div className="text-center">OR</div>
+
+          <div className="space-y-10">
+            <div className="w-full flex justify-center">
+              <Button
+                onClick={onSignInWithGithub}
+                className="shadow-xl bg-blue-300 h-12 px-2 rounded-lg"
+              >
+                Log in with Github
+              </Button>
+            </div>
+          </div>
         </form>
       </div>
     </div>
