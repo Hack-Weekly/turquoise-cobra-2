@@ -7,6 +7,7 @@ import { insertMention, useMention } from "./useMention";
 import "prismjs";
 import "prismjs/components/prism-markdown";
 import { useEffect } from "react";
+import { ChatGIF } from "../ChatGIF";
 
 const initialValue = [
   {
@@ -56,16 +57,17 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
   }
 
   return (
-    <div className="border px-4 py-2 rounded-lg relative">
+    <div className="border px-4 py-2 rounded-lg relative flex w-full">
       <Slate editor={editor} value={initialValue} onChange={onChange}>
         <Editable
-          className="w-full max-w-none"
+          className="w-full max-w-none break-all"
           decorate={decorate}
           renderElement={renderElement}
           renderLeaf={renderLeaf}
           onKeyDown={onKeyDown}
         />
       </Slate>
+      <ChatGIF activeChannel={props.activeChannel} />
       {target && usernames.length > 0 && (
         <div
           className={cx(

@@ -58,7 +58,11 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
           </button>
         ) : null}
       </p>
-      {nodes && <DiscordNodes nodes={nodes} users={users} />}
+      {message.embeds && message.embeds.length > 0 ? (
+        <img src={message.embeds[0].thumbnail.url} />
+      ) : (
+        nodes && <DiscordNodes nodes={nodes} users={users} />
+      )}
     </div>
   );
 };
