@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /messages/{message} {
       allow read: if true;
-      allow create: if request.auth != null && request.data.channelId != "T415kos6wzfgjKDBpWe3";
+      allow create: if request.auth != null && request.resource.data.channelId != "T415kos6wzfgjKDBpWe3";
       allow delete: if request.auth.uid == resource.data.author.id;
     }
     match /channels/{channel} {

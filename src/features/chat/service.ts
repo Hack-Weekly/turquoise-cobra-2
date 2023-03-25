@@ -86,6 +86,7 @@ const chatMessagesConverter: FirestoreDataConverter<DataChatMessage> = {
       channelId: data.channelId,
       author: data.author,
       content: data.content,
+      createdAt: serverTimestamp(),
     };
   },
   fromFirestore(
@@ -99,7 +100,7 @@ const chatMessagesConverter: FirestoreDataConverter<DataChatMessage> = {
       author: data.author,
       content: data.content,
       mentions: data.mentions,
-      createdAt: data.createdAt.toDate(),
+      createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
     };
   },
 };
