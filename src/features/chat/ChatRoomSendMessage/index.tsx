@@ -75,7 +75,7 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
         >
           {usernames.map((user, i) => (
             <div
-              key={user.displayName}
+              key={user.id}
               onClick={(e) => {
                 e.preventDefault();
                 Transforms.select(editor, target);
@@ -92,7 +92,10 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
                 "text-left p-2 rounded-md overflow-hidden hover:cursor-pointer"
               )}
             >
-              {user.displayName}
+              {user.displayName}{" "}
+              <span className="text-slate-400 text-sm pl-4">
+                #{user.id.substring(0, 6)}
+              </span>
             </div>
           ))}
         </div>
