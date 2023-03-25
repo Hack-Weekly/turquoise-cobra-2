@@ -44,7 +44,9 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
         ) : (
           <span className="font-bold italic text-slate-600">Anonymous</span>
         )}
-        <span className="text-slate-400 text-sm">12:15 PM</span>
+        <span className="text-slate-400 text-sm">
+          {message.createdAt.toLocaleTimeString()}
+        </span>
         {uid === message.author.id ? (
           <button
             className="inline-block bg-red-400 px-2"
