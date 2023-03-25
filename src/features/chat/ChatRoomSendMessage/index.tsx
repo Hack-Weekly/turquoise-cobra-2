@@ -46,6 +46,15 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
     }
   }, [message]);
 
+  if (props.activeChannel === "T415kos6wzfgjKDBpWe3") {
+    return (
+      <div className="border px-4 py-2 rounded-lg relative select-none cursor-not-allowed text-slate-400 tw-opacity-70 bg-slate-100">
+        You do not have permission to send messages in this channel. Try the
+        other ones!
+      </div>
+    );
+  }
+
   return (
     <div className="border px-4 py-2 rounded-lg relative">
       <Slate editor={editor} value={initialValue} onChange={onChange}>
