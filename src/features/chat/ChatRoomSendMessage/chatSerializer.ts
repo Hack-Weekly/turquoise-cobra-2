@@ -4,7 +4,7 @@ import { MentionElement } from "./useMention";
 
 export const serialize = (
   value: Descendant[]
-): Omit<DataChatMessage, "id" | "metadata"> => {
+): Pick<DataChatMessage, "content" | "mentions"> => {
   const mentions: DataUser[] = [];
   const content = value
     .map((node) => {

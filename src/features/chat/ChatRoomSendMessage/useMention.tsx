@@ -6,7 +6,6 @@ import { EditableProps } from "slate-react/dist/components/editable";
 import { Leaf } from "./Leaf";
 import { Element } from "./Element";
 import { DataUser, useAutocompleteUsername, useSendMessage } from "../service";
-import { serialize } from "./chatSerializer";
 
 export type MentionElement = {
   type: "mention";
