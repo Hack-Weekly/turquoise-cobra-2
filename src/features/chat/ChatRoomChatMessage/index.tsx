@@ -134,11 +134,7 @@ const DiscordASTNode = ({
 
     case "codeBlock":
     case "inlineCode":
-      return (
-        <code>
-          <DiscordNodes nodes={node.content} users={users} />
-        </code>
-      );
+      return <code>{node.content}</code>;
 
     case "em":
       return (
@@ -177,7 +173,7 @@ const DiscordASTNode = ({
 
     case "spoiler":
       return (
-        <span className="bg-slate-200">
+        <span className="bg-slate-200 text-black text-opacity-0 hover:text-opacity-100 p-0.5 rounded-md">
           <DiscordNodes nodes={node.content} users={users} />
         </span>
       );
