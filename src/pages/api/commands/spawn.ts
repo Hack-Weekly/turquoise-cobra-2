@@ -154,7 +154,6 @@ export default async function handler(
               {
                 id: decodedToken.uid,
                 displayName: decodedToken["name"] || "",
-                photoURL: decodedToken.picture,
               },
             ],
             content: `<@${decodedToken.uid}> You spawned: \n`,

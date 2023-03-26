@@ -58,7 +58,6 @@ export default async function handler(
               {
                 id: decodedToken.uid,
                 displayName: decodedToken["name"] || "",
-                photoURL: decodedToken.picture,
               },
             ],
             content: `<@${decodedToken.uid}> \n` + message.text,
