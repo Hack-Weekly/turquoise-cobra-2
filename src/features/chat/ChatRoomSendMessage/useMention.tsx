@@ -25,7 +25,7 @@ export const insertMention = (editor: any, user: DataUser) => {
 };
 
 export const useMention = (activeChannel: string) => {
-  const { sendMessage } = useSendMessage(activeChannel);
+  const { sendingChatBot, sendMessage } = useSendMessage(activeChannel);
   const { usernames, fetchUsernames } = useAutocompleteUsername();
 
   const [editor] = useState<ReactEditor>(() =>
@@ -150,6 +150,7 @@ export const useMention = (activeChannel: string) => {
   );
 
   return {
+    sendingChatBot,
     usernames,
     editor,
     index,

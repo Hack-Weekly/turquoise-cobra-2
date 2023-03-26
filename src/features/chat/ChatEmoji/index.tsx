@@ -7,7 +7,13 @@ import ClickAwayListener from "react-click-away-listener";
 import { ReactEditor } from "slate-react";
 import { Editor, Transforms } from "slate";
 
-export const ChatEmoji = ({ editor }: { editor: ReactEditor }) => {
+export const ChatEmoji = ({
+  editor,
+  disabled,
+}: {
+  editor: ReactEditor;
+  disabled: boolean;
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const onClickAway = () => {
     setIsOpen(false);
@@ -29,7 +35,7 @@ export const ChatEmoji = ({ editor }: { editor: ReactEditor }) => {
   return (
     <ClickAwayListener onClickAway={onClickAway}>
       <div>
-        <button onClick={onPickerShow}>
+        <button disabled={disabled} onClick={onPickerShow}>
           <HiEmojiHappy className="text-2xl" />
         </button>
         {isOpen && (

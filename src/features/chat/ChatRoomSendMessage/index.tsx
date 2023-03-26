@@ -29,6 +29,7 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
   const decorate = useDecorate();
 
   const {
+    sendingChatBot,
     usernames,
     editor,
     index,
@@ -58,7 +59,12 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
   }
 
   return (
-    <div className="border px-4 py-2 rounded-lg relative flex w-full">
+    <div
+      className={cx(
+        sendingChatBot && "bg-slate-200",
+        "border px-4 py-2 rounded-lg relative flex w-full"
+      )}
+    >
       <Slate editor={editor} value={initialValue} onChange={onChange}>
         <Editable
           className="w-full max-w-none break-all"
@@ -66,11 +72,19 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
           renderElement={renderElement}
           renderLeaf={renderLeaf}
           onKeyDown={onKeyDown}
+          readOnly={sendingChatBot}
+          disabled={sendingChatBot}
         />
       </Slate>
+      {sendingChatBot && (
+        <div className="absolute left-4 top-3">AI is thinking...</div>
+      )}
       <div className="flex gap-2">
-        <ChatEmoji editor={editor} />
-        <ChatGIF activeChannel={props.activeChannel} />
+        <ChatEmoji editor={editor} disabled={sendingChatBot} />
+        <ChatGIF
+          activeChannel={props.activeChannel}
+          disabled={sendingChatBot}
+        />
       </div>
       {target && usernames.length > 0 && (
         <div
