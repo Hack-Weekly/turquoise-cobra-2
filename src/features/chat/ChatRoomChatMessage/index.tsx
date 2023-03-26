@@ -1,9 +1,16 @@
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState, Fragment, useMemo, useRef } from "react";
 import { SnapshotMetadata } from "firebase/firestore";
 import type { ASTNode, SingleASTNode } from "simple-markdown";
 import { parse } from "./parse";
-import { DataChatMessage, DataUser, useDeleteMessage } from "../service";
+import {
+  DataChatMessage,
+  DataChatMessageEmbedPlace,
+  DataChatMessageGifv,
+  DataUser,
+  useDeleteMessage,
+} from "../service";
 import { auth } from "../../../../lib/firebase.config";
+import { decompressFromUTF16 } from "lz-string";
 
 export type IChatRoomChatMessage = {
   message: DataChatMessage;
@@ -36,14 +43,13 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
     aux();
   }, [message, setNodes]);
 
+  const embedType =
+    message.embeds && message.embeds.length > 0 && message.embeds[0].type;
+
   return (
     <div className="first:pt-8 pb-4">
       <div className="flex gap-4">
-        <img
-          className="w-10 h-10 rounded mt-1 bg-slate-100"
-          src={message.author?.photoURL || ""}
-          alt=""
-        />
+        <div className="w-2 h-10 rounded mt-1" />
         <div className="flex flex-col">
           <p className="flex 4 items-center gap-4">
             {message.author.displayName ? (
@@ -65,15 +71,100 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
               </button>
             ) : null}
           </p>
-          {message.embeds && message.embeds.length > 0 ? (
-            <img src={message.embeds[0].thumbnail.url} />
-          ) : (
-            nodes && <DiscordNodes nodes={nodes} users={users} />
-          )}
+          <div>
+            {embedType === "gifv" && (
+              <img
+                src={(message.embeds[0] as DataChatMessageGifv).thumbnail!.url}
+              />
+            )}
+            {(!embedType || embedType === "place") && nodes && (
+              <DiscordNodes nodes={nodes} users={users} />
+            )}
+            {embedType === "place" && (
+              <EmbedPlace
+                grid={(message.embeds[0] as DataChatMessageEmbedPlace).grid}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
+};
+
+const topRow = "ABCDEFGHIJKLMNOPQRSTUVWXY".split("");
+
+const EmbedPlace = ({ grid }: { grid: string }) => {
+  const imgSrc = useMemo<string | null>(() => {
+    // create off-screen canvas element
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    if (ctx) {
+      const data = JSON.parse(decompressFromUTF16(grid));
+
+      canvas.width = 250;
+      canvas.height = 250;
+      for (var y = 0; y < 25; y++) {
+        for (var x = 0; x < 25; x++) {
+          ctx.strokeStyle = "#dddddd";
+          ctx.lineWidth = 0.5;
+          ctx.fillStyle = data[y][x];
+          ctx.strokeRect(x * 10, y * 10, 10, 10);
+          ctx.fillRect(x * 10, y * 10, 10, 10);
+        }
+      }
+      for (var y = 0; y < 5; y++) {
+        ctx.beginPath();
+        ctx.strokeStyle = "#aaaaaa";
+        ctx.lineTo(0, y * 50);
+        ctx.lineTo(250, y * 50);
+        ctx.stroke();
+      }
+      for (var x = 0; x < 5; x++) {
+        ctx.beginPath();
+        ctx.strokeStyle = "#aaaaaa";
+        ctx.lineTo(x * 50, 0);
+        ctx.lineTo(x * 50, 250);
+        ctx.stroke();
+      }
+
+      return canvas.toDataURL("string");
+    }
+    return null;
+  }, [grid]);
+
+  if (imgSrc) {
+    return (
+      <div className="relative">
+        <div className="flex justify-between w-[250px] relative">
+          <div className="w-full h-[12px]"></div>
+          {topRow.map((c, i) => (
+            <div
+              key={i}
+              className="absolute font-bold text-[8px] text-center"
+              style={{ left: 10 * i + 2 }}
+            >
+              {c}
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-col justify-between h-[250px] absolute -left-[12px]">
+          {topRow.map((_c, i) => (
+            <div
+              key={i}
+              className="absolute text-[8px] font-bold h-[6px] leading-3 text-center"
+              style={{ top: 10 * i }}
+            >
+              {i + 1}
+            </div>
+          ))}
+        </div>
+        <img src={imgSrc} />
+      </div>
+    );
+  }
+  return <div></div>;
 };
 
 const DiscordNodes = ({ nodes, users }: { nodes: ASTNode; users: Users }) => {
