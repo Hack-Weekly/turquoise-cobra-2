@@ -29,6 +29,7 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
   const { message } = props;
   const [nodes, setNodes] = useState<SimpleMarkdown.SingleASTNode[]>();
   const [users, setUsers] = useState<Users>({});
+  const [mentionsUser, setMentionsUsers] = useState(false);
 
   useEffect(() => {
     const aux = async () => {
@@ -40,18 +41,26 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
             ...users,
             [mention.id]: mention,
           }));
+          if (mention.id === uid) {
+            setMentionsUsers(true);
+          }
         }
       }
     };
     aux();
-  }, [message, setNodes]);
+  }, [message, setNodes, setMentionsUsers, uid]);
 
   const embedType =
     message.embeds && message.embeds.length > 0 && message.embeds[0].type;
 
   return (
-    <div className="first:pt-8 pb-4">
-      <div className="flex gap-4">
+    <div className={"first:pt-8 pb-4"}>
+      <div
+        className={cx(
+          mentionsUser && "bg-yellow-100/25 border-l-4 border-yellow-300",
+          "flex gap-4"
+        )}
+      >
         <div className="w-2 h-10 rounded mt-1" />
         <div className="flex flex-col">
           <p className="flex 4 items-center gap-2">
