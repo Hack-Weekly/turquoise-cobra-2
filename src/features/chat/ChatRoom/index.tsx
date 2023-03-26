@@ -70,6 +70,15 @@ export const ChatRoom = (props: IChatRoom) => {
           </h1>
         </div>
         <div className="flex flex-auto flex-col bg-white rounded-3xl rounded-b-none overflow-hidden p-8 pt-0">
+          {channel && channel.name === "Place" && (
+            <div className="py-2 pt-4 text-lg">
+              <p className="px-4 py-2 rounded-lg bg-turquoise-500">
+                Place is a playground to draw! Use /place [number][letter]
+                [color] to draw to that pixel.
+                <p>(Like /place 1a red or /place 12K #ff00ff)</p>
+              </p>
+            </div>
+          )}
           <ChatMessages activeChannel={activeChannel} />
           <ChatRoomSendMessage activeChannel={activeChannel} />
         </div>
@@ -93,12 +102,15 @@ const ChatMessages = ({ activeChannel }: { activeChannel: string }) => {
         // XXX: This is the only way I could make it scroll to bottom on mount
         setTimeout(
           () => lastMessageRef.current?.scrollIntoView({ behavior: "smooth" }),
-          100
+          200
         );
       }
 
-      if (scrollHeight <= scrollTop + offsetHeight + 100) {
-        lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
+      if (scrollHeight <= scrollTop + offsetHeight + 350) {
+        setTimeout(
+          () => lastMessageRef.current?.scrollIntoView({ behavior: "smooth" }),
+          200
+        );
       }
 
       messagesLenRef.current = messages ? messages.docs.length : 0;
