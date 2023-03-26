@@ -64,7 +64,7 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
         <div className="w-2 h-10 rounded mt-1" />
         <div className="flex flex-col">
           <p className="flex 4 items-center gap-2">
-            {message.author.id.length === 0 && (
+            {"id" in message.author && message.author.id.length === 0 && (
               <span
                 className={cx(
                   "text-sm font-bold bg-turquoise-500 rounded-lg px-1"
