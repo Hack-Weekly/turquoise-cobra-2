@@ -28,7 +28,7 @@ export type DataChatMessage = {
   author: DataUser;
   mentions: DataUser[];
   embeds: DataChatMessageEmbed[];
-  embedType: "" | "gifv" | "place" | "monster:spawn";
+  embedType: "" | "gifv" | "place" | "monster:spawn" | "monster:list";
   content: string;
   createdAt: Date;
 
@@ -38,6 +38,7 @@ export type DataChatMessage = {
 export type DataChatMessageEmbed =
   | DataChatMessageGifv
   | DataChatMessageEmbedMonster
+  | DataChatMessageEmbedMonsterList
   | DataChatMessageEmbedPlace;
 
 export type DataChatMessageGifv = {
@@ -63,6 +64,10 @@ export type DataChatMessageEmbedMonster = {
   monster: {
     url: string;
   };
+};
+export type DataChatMessageEmbedMonsterList = {
+  type: "monster:list";
+  monsters: string[];
 };
 
 type PlaceColor = string;
@@ -194,6 +199,16 @@ const matchCommandSpawn = (content: string) => {
     return false;
   }
 };
+const matchCommandList = (content: string) => {
+  const regex = /^\/list$/;
+  const match = regex.exec(content);
+
+  if (match) {
+    return true;
+  } else {
+    return false;
+  }
+};
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXY".split("");
 export const useSendMessage = (channelId: string) => {
@@ -205,6 +220,7 @@ export const useSendMessage = (channelId: string) => {
       const placeMatch = matchCommandPlace(content);
       const chatMatch = matchCommandChat(content);
       const spawnMatch = matchCommandSpawn(content);
+      const listMatch = matchCommandList(content);
 
       if (placeMatch) {
         sendCommandPlace(
@@ -217,6 +233,9 @@ export const useSendMessage = (channelId: string) => {
         sendMessageRaw(value);
       } else if (spawnMatch) {
         sendCommandSpawn();
+        sendMessageRaw(value);
+      } else if (listMatch) {
+        sendCommandList();
         sendMessageRaw(value);
       } else {
         sendMessageRaw(value);
@@ -274,6 +293,21 @@ export const useSendMessage = (channelId: string) => {
     if (auth.currentUser) {
       const idToken = await auth.currentUser.getIdToken();
       const response = await fetch("/api/commands/spawn", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ channelId }),
+      });
+
+      await response.json();
+    }
+  };
+  const sendCommandList = async () => {
+    if (auth.currentUser) {
+      const idToken = await auth.currentUser.getIdToken();
+      const response = await fetch("/api/commands/listowned", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

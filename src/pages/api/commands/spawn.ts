@@ -130,36 +130,74 @@ export default async function handler(
 
         const decodedToken = await admin.auth().verifyIdToken(token);
         const user = await admin.auth().getUser(decodedToken.uid);
+        const monsterUrl =
+          MONSTER_PATHS[Math.floor(Math.random() * MONSTER_PATHS.length)];
 
-        await admin
-          .firestore()
-          .collection("messages")
-          .add({
-            channelId: req.body.channelId,
-            author: {
-              id: "",
-              displayName: "BOT-SPAWN",
-            },
-            embedType: "monster:spawn",
-            embeds: [
-              {
-                type: "monster:spawn",
-                monster: {
-                  url: MONSTER_PATHS[
-                    Math.floor(Math.random() * MONSTER_PATHS.length)
-                  ],
+        const db = admin.firestore();
+        var start = new Date();
+        start.setMinutes(start.getMinutes() - 1);
+        const query = db
+          .collection("monsters")
+          .where("userId", "==", decodedToken.uid)
+          .where("createdAt", ">", start)
+          .limit(1);
+
+        const obtainedData = await query.get();
+
+        if (obtainedData.empty) {
+          await admin
+            .firestore()
+            .collection("messages")
+            .add({
+              channelId: req.body.channelId,
+              author: {
+                id: "",
+                displayName: "BOT-SPAWN",
+              },
+              embedType: "monster:spawn",
+              embeds: [
+                {
+                  type: "monster:spawn",
+                  monster: {
+                    url: monsterUrl,
+                  },
                 },
-              },
-            ],
-            mentions: [
-              {
-                id: decodedToken.uid,
-                displayName: user.displayName || "",
-              },
-            ],
-            content: `<@${decodedToken.uid}> You spawned: \n`,
+              ],
+              mentions: [
+                {
+                  id: decodedToken.uid,
+                  displayName: user.displayName || "",
+                },
+              ],
+              content: `<@${decodedToken.uid}> You spawned: \n`,
+              createdAt: new Date(),
+            });
+          await admin.firestore().collection("monsters").add({
+            userId: decodedToken.uid,
+            monsterUrl: monsterUrl,
             createdAt: new Date(),
           });
+        } else {
+          await admin
+            .firestore()
+            .collection("messages")
+            .add({
+              channelId: req.body.channelId,
+              author: {
+                id: "",
+                displayName: "BOT-SPAWN",
+              },
+              mentions: [
+                {
+                  id: decodedToken.uid,
+                  displayName: user.displayName || "",
+                },
+              ],
+              content: `<@${decodedToken.uid}> You can only spawn once per minute! Please wait a while \n`,
+              createdAt: new Date(),
+            });
+        }
+
         res.status(200).json({ message: "Message created" });
       } else {
         res.status(401).json({ message: "User not logged in" });

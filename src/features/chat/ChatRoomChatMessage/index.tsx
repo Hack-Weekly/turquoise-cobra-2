@@ -7,6 +7,7 @@ import { parse } from "./parse";
 import {
   DataChatMessage,
   DataChatMessageEmbedMonster,
+  DataChatMessageEmbedMonsterList,
   DataChatMessageEmbedPlace,
   DataChatMessageGifv,
   DataUser,
@@ -100,11 +101,20 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
             )}
             {(!embedType ||
               embedType === "place" ||
-              embedType === "monster:spawn") &&
+              embedType === "monster:spawn" ||
+              embedType === "monster:list") &&
               nodes && <DiscordNodes nodes={nodes} users={users} />}
             {embedType === "place" && (
               <EmbedPlace
                 grid={(message.embeds[0] as DataChatMessageEmbedPlace).grid}
+              />
+            )}
+            {embedType === "monster:list" && (
+              <EmbedMonsterList
+                paths={
+                  (message.embeds[0] as DataChatMessageEmbedMonsterList)
+                    .monsters
+                }
               />
             )}
             {embedType === "monster:spawn" && (
@@ -125,6 +135,28 @@ const EmbedMonster = ({ path }: { path: string }) => {
   return (
     <div>
       <Image width={128} height={128} src={path} alt="monster image" />
+      <p className="text-sm text-neutral-400 italic">
+        Includes Guardian Monsters Artwork by Georg Eckert / lucidtanooki
+      </p>
+    </div>
+  );
+};
+
+const EmbedMonsterList = ({ paths }: { paths: string[] }) => {
+  return (
+    <div>
+      <div className="flex">
+        {paths.map((path, i) => (
+          <Image
+            className="block"
+            key={i}
+            width={32}
+            height={32}
+            src={path}
+            alt="monster image"
+          />
+        ))}
+      </div>
       <p className="text-sm text-neutral-400 italic">
         Includes Guardian Monsters Artwork by Georg Eckert / lucidtanooki
       </p>
