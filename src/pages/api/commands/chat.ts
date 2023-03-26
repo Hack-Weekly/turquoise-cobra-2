@@ -52,7 +52,7 @@ export default async function handler(
               id: "",
               displayName: "BOT-CHAT",
             },
-            embedType: "place",
+            embedType: "",
             embeds: [],
             mentions: [
               {
