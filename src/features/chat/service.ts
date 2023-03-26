@@ -164,13 +164,28 @@ const matchCommandPlace = (content: string) => {
     return false;
   }
 };
+const matchCommandChat = (content: string) => {
+  const regex = /^\/chat\s(.+)$/;
+  const match = regex.exec(content);
+
+  if (match) {
+    const chat = match[1];
+
+    return { chat };
+  } else {
+    return false;
+  }
+};
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXY".split("");
 export const useSendMessage = (channelId: string) => {
+  const [sendingChatBot, setSendingChatBot] = useState(false);
+
   const sendMessage = async (value: Descendant[]) => {
     if (auth.currentUser) {
       const { content } = serialize(value);
       const placeMatch = matchCommandPlace(content);
+      const chatMatch = matchCommandChat(content);
 
       if (placeMatch) {
         sendCommandPlace(
@@ -178,6 +193,9 @@ export const useSendMessage = (channelId: string) => {
           Number(placeMatch.number) - 1,
           placeMatch.text
         );
+      } else if (chatMatch) {
+        sendCommandChat(chatMatch.chat);
+        sendMessageRaw(value);
       } else {
         sendMessageRaw(value);
       }
@@ -212,6 +230,23 @@ export const useSendMessage = (channelId: string) => {
     }
   };
 
+  const sendCommandChat = async (chat: string) => {
+    if (auth.currentUser) {
+      setSendingChatBot(true);
+      const idToken = await auth.currentUser.getIdToken();
+      const response = await fetch("/api/commands/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ message: chat, channelId }),
+      });
+
+      await response.json();
+      setSendingChatBot(false);
+    }
+  };
   const sendCommandPlace = async (x: number, y: number, color: string) => {
     if (auth.currentUser) {
       const { uid, displayName, photoURL } = auth.currentUser;
@@ -260,7 +295,7 @@ export const useSendMessage = (channelId: string) => {
     }
   };
 
-  return { sendGIF, sendMessage, sendCommandPlace };
+  return { sendingChatBot, sendGIF, sendMessage, sendCommandPlace };
 };
 
 export type DataUser = {

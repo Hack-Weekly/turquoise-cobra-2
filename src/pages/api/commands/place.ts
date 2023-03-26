@@ -56,7 +56,7 @@ export default async function handler(
           data = {
             channelId: "i39FeIJVeRW3Fr71aI4x",
             author: {
-              id: decodedToken.uid,
+              id: "",
               displayName: "BOT-PLACE",
             },
             mentions: [],

@@ -35,6 +35,7 @@ type Media = {
 
 export type IChatGIF = {
   activeChannel: string;
+  disabled: boolean;
 };
 export const ChatGIF = (props: IChatGIF) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -86,7 +87,7 @@ export const ChatGIF = (props: IChatGIF) => {
     <Fragment>
       <ClickAwayListener onClickAway={onClickAway}>
         <div>
-          <button onClick={onGIF}>
+          <button disabled={props.disabled} onClick={onGIF}>
             <HiGif className="text-2xl" />
           </button>
           {isOpen && (

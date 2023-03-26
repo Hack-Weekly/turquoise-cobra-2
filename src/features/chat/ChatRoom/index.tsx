@@ -75,7 +75,8 @@ export const ChatRoom = (props: IChatRoom) => {
               <p className="px-4 py-2 rounded-lg bg-turquoise-500">
                 Place is a playground to draw! Use /place [number][letter]
                 [color] to draw to that pixel.
-                <p>(Like /place 1a red or /place 12K #ff00ff)</p>
+                <br />
+                (Like /place 1a red or /place 12K #ff00ff)
               </p>
             </div>
           )}
