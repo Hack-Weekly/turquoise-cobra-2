@@ -28,6 +28,7 @@ export default async function handler(
         const token = authorizationHeader.split(" ")[1];
 
         const decodedToken = await admin.auth().verifyIdToken(token);
+        const user = await admin.auth().getUser(decodedToken.uid);
 
         const auth = new Authenticator(
           process.env.OPENAI_ACCESS_EMAIL as string,
@@ -57,7 +58,7 @@ export default async function handler(
             mentions: [
               {
                 id: decodedToken.uid,
-                displayName: decodedToken["name"] || "",
+                displayName: user.displayName || "",
               },
             ],
             content: `<@${decodedToken.uid}> \n` + message.text,
