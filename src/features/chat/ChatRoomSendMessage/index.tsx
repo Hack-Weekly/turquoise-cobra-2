@@ -8,6 +8,7 @@ import "prismjs";
 import "prismjs/components/prism-markdown";
 import { useEffect } from "react";
 import { ChatGIF } from "../ChatGIF";
+import ChatEmoji from "../ChatEmoji";
 
 const initialValue = [
   {
@@ -67,7 +68,10 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
           onKeyDown={onKeyDown}
         />
       </Slate>
-      <ChatGIF activeChannel={props.activeChannel} />
+      <div className="flex gap-2">
+        <ChatEmoji editor={editor} />
+        <ChatGIF activeChannel={props.activeChannel} />
+      </div>
       {target && usernames.length > 0 && (
         <div
           className={cx(
