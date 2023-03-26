@@ -1,9 +1,11 @@
-import { useEffect, useState, Fragment, useMemo, useRef } from "react";
+import { useEffect, useState, Fragment, useMemo } from "react";
+import Image from "next/image";
 import { SnapshotMetadata } from "firebase/firestore";
 import type { ASTNode, SingleASTNode } from "simple-markdown";
 import { parse } from "./parse";
 import {
   DataChatMessage,
+  DataChatMessageEmbedMonster,
   DataChatMessageEmbedPlace,
   DataChatMessageGifv,
   DataUser,
@@ -77,17 +79,36 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
                 src={(message.embeds[0] as DataChatMessageGifv).thumbnail!.url}
               />
             )}
-            {(!embedType || embedType === "place") && nodes && (
-              <DiscordNodes nodes={nodes} users={users} />
-            )}
+            {(!embedType ||
+              embedType === "place" ||
+              embedType === "monster:spawn") &&
+              nodes && <DiscordNodes nodes={nodes} users={users} />}
             {embedType === "place" && (
               <EmbedPlace
                 grid={(message.embeds[0] as DataChatMessageEmbedPlace).grid}
               />
             )}
+            {embedType === "monster:spawn" && (
+              <EmbedMonster
+                path={
+                  (message.embeds[0] as DataChatMessageEmbedMonster).monster.url
+                }
+              />
+            )}
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+const EmbedMonster = ({ path }: { path: string }) => {
+  return (
+    <div>
+      <Image width={128} height={128} src={path} alt="monster image" />
+      <p className="text-sm text-neutral-400 italic">
+        Includes Guardian Monsters Artwork by Georg Eckert / lucidtanooki
+      </p>
     </div>
   );
 };
