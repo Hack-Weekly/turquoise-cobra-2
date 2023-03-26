@@ -28,7 +28,7 @@ export type DataChatMessage = {
   author: DataUser;
   mentions: DataUser[];
   embeds: DataChatMessageEmbed[];
-  embedType: "" | "gifv" | "place";
+  embedType: "" | "gifv" | "place" | "monster:spawn";
   content: string;
   createdAt: Date;
 
@@ -37,6 +37,7 @@ export type DataChatMessage = {
 
 export type DataChatMessageEmbed =
   | DataChatMessageGifv
+  | DataChatMessageEmbedMonster
   | DataChatMessageEmbedPlace;
 
 export type DataChatMessageGifv = {
@@ -54,6 +55,13 @@ export type DataChatMessageGifv = {
     url: string;
     width: number;
     height: number;
+  };
+};
+
+export type DataChatMessageEmbedMonster = {
+  type: "monster:spawn";
+  monster: {
+    url: string;
   };
 };
 
@@ -176,6 +184,16 @@ const matchCommandChat = (content: string) => {
     return false;
   }
 };
+const matchCommandSpawn = (content: string) => {
+  const regex = /^\/spawn$/;
+  const match = regex.exec(content);
+
+  if (match) {
+    return true;
+  } else {
+    return false;
+  }
+};
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXY".split("");
 export const useSendMessage = (channelId: string) => {
@@ -186,6 +204,7 @@ export const useSendMessage = (channelId: string) => {
       const { content } = serialize(value);
       const placeMatch = matchCommandPlace(content);
       const chatMatch = matchCommandChat(content);
+      const spawnMatch = matchCommandSpawn(content);
 
       if (placeMatch) {
         sendCommandPlace(
@@ -195,6 +214,9 @@ export const useSendMessage = (channelId: string) => {
         );
       } else if (chatMatch) {
         sendCommandChat(chatMatch.chat);
+        sendMessageRaw(value);
+      } else if (spawnMatch) {
+        sendCommandSpawn();
         sendMessageRaw(value);
       } else {
         sendMessageRaw(value);
@@ -245,6 +267,22 @@ export const useSendMessage = (channelId: string) => {
 
       await response.json();
       setSendingChatBot(false);
+    }
+  };
+
+  const sendCommandSpawn = async () => {
+    if (auth.currentUser) {
+      const idToken = await auth.currentUser.getIdToken();
+      const response = await fetch("/api/commands/spawn", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ channelId }),
+      });
+
+      await response.json();
     }
   };
   const sendCommandPlace = async (x: number, y: number, color: string) => {
