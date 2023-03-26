@@ -1,4 +1,5 @@
 import { useEffect, useState, Fragment, useMemo } from "react";
+import cx from "classnames";
 import Image from "next/image";
 import { SnapshotMetadata } from "firebase/firestore";
 import type { ASTNode, SingleASTNode } from "simple-markdown";
@@ -53,15 +54,24 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
       <div className="flex gap-4">
         <div className="w-2 h-10 rounded mt-1" />
         <div className="flex flex-col">
-          <p className="flex 4 items-center gap-4">
+          <p className="flex 4 items-center gap-2">
+            {message.author.id.length === 0 && (
+              <span
+                className={cx(
+                  "text-sm font-bold bg-turquoise-500 rounded-lg px-1"
+                )}
+              >
+                BOT
+              </span>
+            )}
             {message.author.displayName ? (
-              <span className="font-bold truncate max-w-[256px]">
+              <span className={cx("font-bold truncate max-w-[256px]")}>
                 {message.author.displayName}
               </span>
             ) : (
               <span className="font-bold italic text-slate-600">Anonymous</span>
             )}
-            <span className="text-slate-400 text-sm">
+            <span className="text-slate-400 text-sm pl-4">
               {message.createdAt.toLocaleTimeString()}
             </span>
             {uid === message.author.id ? (
