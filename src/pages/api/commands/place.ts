@@ -40,6 +40,7 @@ export default async function handler(
         const token = authorizationHeader.split(" ")[1];
 
         const decodedToken = await admin.auth().verifyIdToken(token);
+        const user = await admin.auth().getUser(decodedToken.uid);
 
         const db = admin.firestore();
         const query = db
@@ -90,7 +91,7 @@ export default async function handler(
             mentions: [
               {
                 id: decodedToken.uid,
-                displayName: decodedToken["name"] || "",
+                displayName: user.displayName || "",
               },
             ],
             content: `from <@${decodedToken.uid}>`,
