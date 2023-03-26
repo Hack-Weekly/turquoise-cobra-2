@@ -80,7 +80,7 @@ export const ChatRoomSendMessage = (props: IChatRoomSendMessage) => {
         <div className="absolute left-4 top-3">
           AI is thinking...{" "}
           <span className="text-sm italic">
-            (can be slow - we're using a "free" workaround)
+            (can be slow - we are using a free workaround)
           </span>
         </div>
       )}

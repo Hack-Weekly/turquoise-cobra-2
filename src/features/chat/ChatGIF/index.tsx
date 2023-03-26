@@ -120,7 +120,7 @@ export const ChatGIF = (props: IChatGIF) => {
                             src={result.media_formats.tinygif.url}
                           />
                         ) : (
-                          <div />
+                          <div key={result.id} />
                         )
                       )}
                     </div>
