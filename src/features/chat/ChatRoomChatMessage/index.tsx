@@ -3,6 +3,7 @@ import cx from "classnames";
 import Image from "next/image";
 import { SnapshotMetadata } from "firebase/firestore";
 import type { ASTNode, SingleASTNode } from "simple-markdown";
+import { ErrorBoundary } from "react-error-boundary";
 import { parse } from "./parse";
 import {
   DataChatMessage,
@@ -93,38 +94,50 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
               </button>
             ) : null}
           </p>
-          <div>
-            {embedType === "gifv" && (
-              <img
-                src={(message.embeds[0] as DataChatMessageGifv).thumbnail!.url}
-              />
-            )}
-            {(!embedType ||
-              embedType === "place" ||
-              embedType === "monster:spawn" ||
-              embedType === "monster:list") &&
-              nodes && <DiscordNodes nodes={nodes} users={users} />}
-            {embedType === "place" && (
-              <EmbedPlace
-                grid={(message.embeds[0] as DataChatMessageEmbedPlace).grid}
-              />
-            )}
-            {embedType === "monster:list" && (
-              <EmbedMonsterList
-                paths={
-                  (message.embeds[0] as DataChatMessageEmbedMonsterList)
-                    .monsters
-                }
-              />
-            )}
-            {embedType === "monster:spawn" && (
-              <EmbedMonster
-                path={
-                  (message.embeds[0] as DataChatMessageEmbedMonster).monster.url
-                }
-              />
-            )}
-          </div>
+          <ErrorBoundary
+            fallback={
+              <div className="bg-red-200 p-2 rounded-md">
+                Error: We couldn't render the message! (Please report to the
+                devs!)
+              </div>
+            }
+          >
+            <div>
+              {embedType === "gifv" && (
+                <img
+                  src={
+                    (message.embeds[0] as DataChatMessageGifv).thumbnail!.url
+                  }
+                />
+              )}
+              {(!embedType ||
+                embedType === "place" ||
+                embedType === "monster:spawn" ||
+                embedType === "monster:list") &&
+                nodes && <DiscordNodes nodes={nodes} users={users} />}
+              {embedType === "place" && (
+                <EmbedPlace
+                  grid={(message.embeds[0] as DataChatMessageEmbedPlace).grid}
+                />
+              )}
+              {embedType === "monster:list" && (
+                <EmbedMonsterList
+                  paths={
+                    (message.embeds[0] as DataChatMessageEmbedMonsterList)
+                      .monsters
+                  }
+                />
+              )}
+              {embedType === "monster:spawn" && (
+                <EmbedMonster
+                  path={
+                    (message.embeds[0] as DataChatMessageEmbedMonster).monster
+                      .url
+                  }
+                />
+              )}
+            </div>
+          </ErrorBoundary>
         </div>
       </div>
     </div>
@@ -142,7 +155,7 @@ const EmbedMonster = ({ path }: { path: string }) => {
   );
 };
 
-const EmbedMonsterList = ({ paths }: { paths: string[] }) => {
+const EmbedMonsterList = ({ paths = [] }: { paths: string[] }) => {
   return (
     <div>
       <div className="flex">

@@ -48,7 +48,7 @@ export default async function handler(
               embeds: [
                 {
                   type: "monster:list",
-                  monster: {},
+                  monsters: [],
                 },
               ],
               mentions: [
