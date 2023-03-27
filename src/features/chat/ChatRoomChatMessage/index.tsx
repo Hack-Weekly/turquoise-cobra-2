@@ -97,7 +97,7 @@ export const ChatRoomChatMessage = (props: IChatRoomChatMessage) => {
           <ErrorBoundary
             fallback={
               <div className="bg-red-200 p-2 rounded-md">
-                Error: We couldn't render the message! (Please report to the
+                Error: We could not render the message! (Please report to the
                 devs!)
               </div>
             }
