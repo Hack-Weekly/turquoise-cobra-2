@@ -139,7 +139,7 @@ export const useMention = (activeChannel: string) => {
         }
       }
     },
-    [usernames, editor, index, target]
+    [usernames, editor, index, target, activeChannel]
   );
 
   const onPaste = useCallback<NonNullable<EditableProps["onPaste"]>>(
